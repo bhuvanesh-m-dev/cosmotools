@@ -133,10 +133,10 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.keys(patternMap).forEach(key => {
             const val = patternMap[key];
             const btn = document.createElement('button');
-            btn.className = `pattern-icon flex flex-col items-center justify-center p-2 rounded-lg border border-slate-200 hover:border-indigo-300 bg-white ${state.dotsOptions.type === val ? 'active' : ''}`;
+            btn.className = `pattern-icon flex flex-col items-center justify-center p-2 rounded-lg border border-neutral-200 hover:border-black bg-white ${state.dotsOptions.type === val ? 'active' : ''}`;
             btn.innerHTML = `
-                <div class="w-8 h-8 mb-1 text-slate-700">${getPatternSVG(val)}</div>
-                <span class="text-[10px] font-medium text-slate-600">${key}</span>
+                <div class="w-8 h-8 mb-1 text-neutral-700">${getPatternSVG(val)}</div>
+                <span class="text-[10px] font-medium text-neutral-600">${key}</span>
             `;
             btn.onclick = () => {
                 state.dotsOptions.type = val;
@@ -150,10 +150,10 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.keys(eyeStyles).forEach(key => {
             const styles = eyeStyles[key];
             const btn = document.createElement('button');
-            btn.className = `pattern-icon flex flex-col items-center justify-center p-2 rounded-lg border border-slate-200 hover:border-indigo-300 bg-white ${state.cornersSquareOptions.type === styles.square ? 'active' : ''}`;
+            btn.className = `pattern-icon flex flex-col items-center justify-center p-2 rounded-lg border border-neutral-200 hover:border-black bg-white ${state.cornersSquareOptions.type === styles.square ? 'active' : ''}`;
             btn.innerHTML = `
-                <div class="w-8 h-8 mb-1 text-slate-700">${getEyeSVG(styles.square)}</div>
-                <span class="text-[10px] font-medium text-slate-600">${key}</span>
+                <div class="w-8 h-8 mb-1 text-neutral-700">${getEyeSVG(styles.square)}</div>
+                <span class="text-[10px] font-medium text-neutral-600">${key}</span>
             `;
             btn.onclick = () => {
                 state.cornersSquareOptions.type = styles.square;
