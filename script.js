@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Dotted': { square: 'dot', dot: 'square' }
     };
 
-    let qrCode = null;
+    const qrGenerator = new QRGenerator();
 
     // --- DOM Elements ---
     const container = document.getElementById('qr-container');
@@ -82,36 +82,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Core QR Logic ---
 
     function createQR() {
-        container.innerHTML = ''; // Clear previous
-        
-        // Clean up image if null
         const config = {
             width: state.width,
             height: state.height,
-            type: "canvas", // We use canvas for rendering, but can export to SVG
+            type: state.type,
             data: state.data,
             image: state.image,
             dotsOptions: state.dotsOptions,
             backgroundOptions: state.backgroundOptions,
             cornersSquareOptions: state.cornersSquareOptions,
-            cornersDotOptions: state.cornersDotOptions,
-            imageOptions: {
-                crossOrigin: "anonymous",
-                margin: 10
-            }
+            cornersDotOptions: state.cornersDotOptions
         };
 
-        qrCode = new QRCodeStyling(config);
-        qrCode.append(container);
+        qrGenerator.init(container, config);
         
         // Update char count
         charCount.textContent = `${state.data.length} chars`;
     }
 
     function updateQR() {
-        if (!qrCode) return;
-        
-        qrCode.update({
+        qrGenerator.update({
             data: state.data,
             width: state.width,
             height: state.height,
@@ -223,11 +213,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Downloads
         document.getElementById('btn-download-png').addEventListener('click', () => {
-            qrCode.download({ name: 'cosmoencode-qr', extension: 'png' });
+            qrGenerator.download('cosmoencode-qr', 'png');
         });
 
         document.getElementById('btn-download-svg').addEventListener('click', () => {
-            qrCode.download({ name: 'cosmoencode-qr', extension: 'svg' });
+            qrGenerator.download('cosmoencode-qr', 'svg');
         });
 
         // Copy Embed
