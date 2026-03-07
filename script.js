@@ -76,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderSelectors();
         createQR();
         setupEventListeners();
-        updateEmbedCode();
     }
 
     // --- Core QR Logic ---
@@ -98,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Update char count
         charCount.textContent = `${state.data.length} chars`;
+        setTimeout(updateEmbedCode, 100);
     }
 
     function updateQR() {
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         charCount.textContent = `${state.data.length} chars`;
-        updateEmbedCode();
+        setTimeout(updateEmbedCode, 100);
     }
 
     // --- UI Generation ---
@@ -234,18 +234,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Helpers ---
 
     function updateEmbedCode() {
-        // Generate a data URL for the embed (simplified approach)
-        // In a real scenario, we might upload the image. 
-        // Here we provide a placeholder that points to the current state (conceptually)
-        // Since we can't easily generate a static URL without a backend, 
-        // we will generate an <img> tag with a placeholder src or instructions.
-        
-        // Actually, we can generate a Data URL from the canvas if we wanted, but it might be huge.
-        // Better to provide the "Direct Link" instruction as we did in UI.
+        const dataUrl = qrGenerator.getDataUrl();
+        const src = dataUrl || '';
         
         const code = `<!-- CosmoEncode QR Code -->
 <div style="text-align: center;">
-    <img src="YOUR_GENERATED_IMAGE_URL_HERE" alt="QR Code" width="${state.width}" height="${state.height}" />
+    <img src="${src}" alt="QR Code" width="${state.width}" height="${state.height}" />
     <p style="font-size: 12px; color: #666;">Scan to visit</p>
 </div>`;
         embedTextarea.value = code;
