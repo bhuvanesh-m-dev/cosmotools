@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vision & Roadmap | CosmoTools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Space Grotesk', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            scroll-behavior: smooth;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Brutalist utility classes */
+        .bw-border {
+            border: 2px solid var(--text-color);
+        }
+
+        .bw-border-b {
+            border-bottom: 2px solid var(--text-color);
+        }
+
+        .bw-hover {
+            transition: all 0.2s ease;
+        }
+
+        .bw-hover:hover {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        .bw-hover-invert {
+            transition: all 0.2s ease;
+            background-color: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        .bw-hover-invert:hover {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #000;
+            border-left: 2px solid #fff;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fff;
+        }
+
+        .grid-pattern {
+            background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .hero-text {
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        .phase-card {
+            transition: transform 0.2s ease;
+        }
+        .phase-card:hover {
+            transform: translateX(10px);
+        }
+
+        .phase-card:nth-child(even) {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        .phase-card:nth-child(even) .bw-border {
+            border-color: #000000;
+        }
+    </style>
+</head>
+<body class="grid-pattern min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-black bw-border-b">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <span class="font-bold text-2xl tracking-tighter font-mono">COSMOTOOLS_VISION</span>
+            <div class="hidden md:flex gap-1">
+                <a href="#philosophy" class="px-4 py-2 bw-hover font-mono text-sm uppercase">Philosophy</a>
+                <a href="#roadmap" class="px-4 py-2 bw-hover font-mono text-sm uppercase">Roadmap</a>
+                <a href="https://github.com/bhuvanesh-m-dev/cosmotools" target="_blank" class="px-4 py-2 bw-hover font-mono text-sm uppercase">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-40 pb-20 px-6">
+        <!-- Hero Section -->
+        <section class="max-w-5xl mx-auto mb-32">
+            <div class="bw-border p-8 md:p-16 inline-block bg-black">
+                <h1 class="text-5xl md:text-8xl font-bold hero-text leading-[0.9] mb-10">
+                    Approachable.<br/>
+                    Meaningful.<br/>
+                    Open.
+                </h1>
+                <p class="text-xl md:text-2xl font-mono leading-relaxed max-w-4xl opacity-80">
+                    CosmoTools is a privacy-first ecosystem of everyday web utilities that run entirely in the browser. 
+                    No servers. No tracking. Just tools.
+                </p>
+            </div>
+        </section>
+
+        <!-- Mission Statement -->
+        <section class="max-w-7xl mx-auto mb-32 grid md:grid-cols-2 gap-0 bw-border bg-white text-black">
+            <div class="p-10 md:border-r-2 border-black">
+                <h2 class="text-4xl font-bold uppercase mb-6">Long-Term Mission</h2>
+                <p class="text-lg leading-relaxed mb-6 font-medium">
+                    To build a modular ecosystem of browser utilities that can serve developers, students, and everyday users.
+                </p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1 bw-border border-black font-mono text-sm uppercase">Lightweight</span>
+                    <span class="px-3 py-1 bw-border border-black font-mono text-sm uppercase">Accessible</span>
+                    <span class="px-3 py-1 bw-border border-black font-mono text-sm uppercase">Transparent</span>
+                    <span class="px-3 py-1 bw-border border-black font-mono text-sm uppercase">Community-Driven</span>
+                </div>
+            </div>
+            <div class="p-10 bg-black text-white flex flex-col justify-center">
+                <h2 class="text-4xl font-bold uppercase mb-6">Core Focus</h2>
+                <ul class="font-mono space-y-4 text-lg">
+                    <li class="flex gap-4">
+                        <span class="opacity-40">01</span>
+                        <span>Simplicity in design</span>
+                    </li>
+                    <li class="flex gap-4">
+                        <span class="opacity-40">02</span>
+                        <span>Privacy-first architecture</span>
+                    </li>
+                    <li class="flex gap-4">
+                        <span class="opacity-40">03</span>
+                        <span>Open-source development</span>
+                    </li>
+                    <li class="flex gap-4">
+                        <span class="opacity-40">04</span>
+                        <span>Browser-based performance</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Platform Philosophy -->
+        <section id="philosophy" class="max-w-7xl mx-auto mb-32">
+            <div class="flex items-center gap-4 mb-12">
+                <h2 class="text-4xl font-bold uppercase">Platform Philosophy</h2>
+                <div class="h-[2px] flex-grow bg-white"></div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-0 bw-border">
+                <div class="p-10 border-b-2 md:border-b-0 md:border-r-2 border-white">
+                    <h3 class="text-2xl font-bold mb-4 uppercase font-mono tracking-tighter">Privacy First</h3>
+                    <p class="opacity-80 leading-relaxed">
+                        Users should be able to perform everyday tasks without uploading their files to unknown servers. Most tools process data locally in the browser.
+                    </p>
+                </div>
+
+                <div class="p-10 border-b-2 md:border-b-0 md:border-r-2 border-white">
+                    <h3 class="text-2xl font-bold mb-4 uppercase font-mono tracking-tighter">Simplicity</h3>
+                    <p class="opacity-80 leading-relaxed">
+                        Each tool is built to do one job well while maintaining a clean and distraction-free interface. We value function over flash.
+                    </p>
+                </div>
+
+                <div class="p-10">
+                    <h3 class="text-2xl font-bold mb-4 uppercase font-mono tracking-tighter">Open Collaboration</h3>
+                    <p class="opacity-80 leading-relaxed">
+                        The project is open source and encourages contributions, experimentation, and community feedback from developers globally.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Roadmap -->
+        <section id="roadmap" class="max-w-5xl mx-auto mb-32">
+            <div class="flex items-center gap-4 mb-12">
+                <h2 class="text-4xl font-bold uppercase">Development Roadmap</h2>
+                <div class="h-[2px] flex-grow bg-white"></div>
+            </div>
+
+            <div class="space-y-12">
+                <!-- Phase 1 -->
+                <div class="phase-card bw-border p-8 bg-black">
+                    <div class="flex flex-col md:flex-row justify-between mb-8">
+                        <div>
+                            <span class="font-mono text-xs opacity-50 block mb-2 uppercase tracking-widest">Current Status</span>
+                            <h3 class="text-3xl font-bold font-mono uppercase">Phase 1 — Core Utilities</h3>
+                        </div>
+                        <div class="mt-4 md:mt-0">
+                            <span class="font-mono text-sm px-4 py-2 bw-border-invert bg-white text-black inline-block font-bold">ACTIVE</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="p-6 bw-border bg-neutral-900">
+                            <h4 class="font-bold text-xl mb-2 font-mono uppercase tracking-tighter">CosmoEncode</h4>
+                            <p class="opacity-60 text-sm">QR code generator with customizable styles and permanent embeds.</p>
+                        </div>
+                        <div class="p-6 bw-border bg-neutral-900">
+                            <h4 class="font-bold text-xl mb-2 font-mono uppercase tracking-tighter">CosmoCard</h4>
+                            <p class="opacity-60 text-sm">Stateless digital visiting card generator using URL parameters.</p>
+                        </div>
+                        <div class="p-6 bw-border bg-neutral-900">
+                            <h4 class="font-bold text-xl mb-2 font-mono uppercase tracking-tighter">CosmoCalc</h4>
+                            <p class="opacity-60 text-sm">A browser-based calculator for everyday calculations.</p>
+                        </div>
+                        <div class="p-6 bw-border bg-neutral-900">
+                            <h4 class="font-bold text-xl mb-2 font-mono uppercase tracking-tighter">CosmoPDF (v1)</h4>
+                            <p class="opacity-60 text-sm">Basic document tools such as PDF viewing and merging.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 2 -->
+                <div class="phase-card bw-border p-10 bg-white text-black">
+                    <h3 class="text-3xl font-bold font-mono uppercase mb-6">Phase 2 — Document Expansion</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 font-mono text-sm">
+                        <div class="flex items-center gap-2"><span>[ ]</span> Merge PDF</div>
+                        <div class="flex items-center gap-2"><span>[ ]</span> Split PDF</div>
+                        <div class="flex items-center gap-2"><span>[ ]</span> Rotate PDF</div>
+                        <div class="flex items-center gap-2"><span>[ ]</span> Extract Pages</div>
+                        <div class="flex items-center gap-2"><span>[ ]</span> Watermark</div>
+                        <div class="flex items-center gap-2"><span>[ ]</span> Compress PDF</div>
+                    </div>
+                </div>
+
+                <!-- Phase 3 -->
+                <div class="phase-card bw-border p-10 bg-black">
+                    <h3 class="text-3xl font-bold font-mono uppercase mb-4">Phase 3 — Media Tools</h3>
+                    <p class="font-mono opacity-70 mb-6 max-w-2xl">Client-side processing for visual assets. Fast preparation for web and development workflows.</p>
+                    <div class="flex flex-wrap gap-4 text-xs font-mono">
+                        <span class="px-3 py-1 bw-border opacity-60 italic uppercase tracking-widest">Image Compressor</span>
+                        <span class="px-3 py-1 bw-border opacity-60 italic uppercase tracking-widest">Format Converter</span>
+                        <span class="px-3 py-1 bw-border opacity-60 italic uppercase tracking-widest">Resizing Tools</span>
+                    </div>
+                </div>
+
+                <!-- Phase 4 & 5 Combined -->
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="phase-card bw-border p-10 bg-white text-black">
+                        <h3 class="text-2xl font-bold font-mono uppercase mb-4">Phase 4 — Dev Utils</h3>
+                        <ul class="font-mono text-sm space-y-2 opacity-80">
+                            <li>- JSON Formatter</li>
+                            <li>- Base64 Encode/Decode</li>
+                            <li>- URL Encode/Decode</li>
+                            <li>- Markdown Preview</li>
+                        </ul>
+                    </div>
+                    <div class="phase-card bw-border p-10 bg-black">
+                        <h3 class="text-2xl font-bold font-mono uppercase mb-4">Phase 5 — Growth</h3>
+                        <ul class="font-mono text-sm space-y-2 opacity-80">
+                            <li>- Document Converters</li>
+                            <li>- Spreadsheet Utilities</li>
+                            <li>- Browser-based AI Helpers</li>
+                            <li>- Workflow Automations</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Goal -->
+        <section class="max-w-7xl mx-auto text-center py-24 bw-border bg-white text-black">
+            <h2 class="text-4xl md:text-7xl font-bold uppercase mb-8 leading-none">The Ultimate Goal</h2>
+            <p class="text-xl md:text-3xl font-mono leading-relaxed max-w-4xl mx-auto px-6 font-medium">
+                "Demonstrating that useful software doesn't always require complex backend infrastructure. Fast. Private. Accessible to everyone."
+            </p>
+        </section>
+    </main>
+
+   <!-- Footer -->
+    <footer class="bw-border-t py-16 bg-black">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-12">
+            <div>
+                <p class="font-mono text-sm uppercase mb-4 opacity-50">Handcrafted by</p>
+                <a href="https://github.com/bhuvanesh-m-dev" class="text-4xl font-bold bw-hover inline-block px-2 -ml-2">
+                    Bhuvanesh M
+                </a>
+            </div>
+            
+            <div class="flex flex-col gap-2 text-right items-start md:items-end">
+                <div class="flex gap-4 font-mono text-sm uppercase">
+                    <a href="https://github.com/bhuvanesh-m-dev/cosmotools" class="bw-hover p-1">GitHub</a>
+                    <a href="https://x.com/bhuvaneshm06" class="bw-hover p-1">Twitter</a>
+                </div>
+                <p class="text-xs font-mono opacity-50 mt-4">
+                    BUILT_WITH_LOVE &copy; 2026 - Present
+                </p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

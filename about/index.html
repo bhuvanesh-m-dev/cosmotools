@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About | Bhuvanesh M</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Space Grotesk', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            scroll-behavior: smooth;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Brutalist utility classes */
+        .bw-border {
+            border: 2px solid var(--text-color);
+        }
+
+        .bw-border-b {
+            border-bottom: 2px solid var(--text-color);
+        }
+
+        .bw-hover {
+            transition: all 0.2s ease;
+        }
+
+        .bw-hover:hover {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        .bw-hover-invert {
+            transition: all 0.2s ease;
+            background-color: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        .bw-hover-invert:hover {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #000;
+            border-left: 2px solid #fff;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fff;
+        }
+
+        .grid-pattern {
+            background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .hero-text {
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+    </style>
+</head>
+<body class="grid-pattern min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-black bw-border-b">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <span class="font-bold text-2xl tracking-tighter font-mono">BHUVANESH_M</span>
+            <div class="hidden md:flex gap-1">
+                <a href="#philosophy" class="px-4 py-2 bw-hover font-mono text-sm uppercase">Philosophy</a>
+                <a href="#work" class="px-4 py-2 bw-hover font-mono text-sm uppercase">Projects</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-40 pb-20 px-6">
+        <!-- Hero Section -->
+        <section class="max-w-5xl mx-auto mb-32">
+            <div class="bw-border p-8 md:p-16 inline-block bg-black">
+                <h1 class="text-5xl md:text-8xl font-bold hero-text leading-[0.9] mb-10">
+                    Approachable.<br/>
+                    Meaningful.<br/>
+                    Open.
+                </h1>
+                <p class="text-xl md:text-2xl font-mono leading-relaxed max-w-3xl opacity-80">
+                    I build tools that bridge the gap between complex engineering and human experience. 
+                    Simple by design, transparent by choice.
+                </p>
+            </div>
+        </section>
+
+        <!-- Philosophy Grid -->
+        <section id="philosophy" class="max-w-7xl mx-auto grid md:grid-cols-3 gap-0 bw-border mb-32 bg-white text-black">
+            <div class="p-10 border-b-2 md:border-b-0 md:border-r-2 border-black">
+                <div class="font-mono text-xs mb-6 uppercase tracking-widest">[ 01 ]</div>
+                <h3 class="text-3xl font-bold mb-6 uppercase">Approachable</h3>
+                <p class="font-medium leading-relaxed">
+                    Tech shouldn't be a black box. I prioritize interfaces that welcome users rather than alienating them with unnecessary complexity.
+                </p>
+            </div>
+
+            <div class="p-10 border-b-2 md:border-b-0 md:border-r-2 border-black">
+                <div class="font-mono text-xs mb-6 uppercase tracking-widest">[ 02 ]</div>
+                <h3 class="text-3xl font-bold mb-6 uppercase">Meaningful</h3>
+                <p class="font-medium leading-relaxed">
+                    Purpose over hype. Every project is a solution to a tangible problem, focused on improving the day-to-day workflow of creators.
+                </p>
+            </div>
+
+            <div class="p-10">
+                <div class="font-mono text-xs mb-6 uppercase tracking-widest">[ 03 ]</div>
+                <h3 class="text-3xl font-bold mb-6 uppercase">Open</h3>
+                <p class="font-medium leading-relaxed">
+                    Documentation is a love letter to your future self and the community. I build in public to foster a culture of shared knowledge.
+                </p>
+            </div>
+        </section>
+
+        <!-- Project Spotlight -->
+        <section id="work" class="max-w-5xl mx-auto mb-32">
+            <div class="flex items-center gap-4 mb-12">
+                <h2 class="text-4xl font-bold uppercase">Open Source</h2>
+                <div class="h-[2px] flex-grow bg-white"></div>
+            </div>
+            
+            <div class="bw-border p-1 md:p-2 bg-white">
+                <div class="bw-border border-black p-10 bg-black text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                    <div>
+                        <h3 class="text-4xl font-bold mb-2 font-mono">COSMOTOOLS</h3>
+                        <p class="text-lg opacity-70 italic font-mono max-w-xl">
+                            A minimalist toolkit for modern developers. No bloat, just logic.
+                        </p>
+                    </div>
+                    <a href="https://github.com/bhuvanesh-m-dev/cosmotools" target="_blank" class="px-8 py-4 bw-hover-invert font-bold uppercase tracking-tighter whitespace-nowrap">
+                        Visit Repo _
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bw-border-t py-16 bg-black">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-12">
+            <div>
+                <p class="font-mono text-sm uppercase mb-4 opacity-50">Handcrafted by</p>
+                <a href="https://github.com/bhuvanesh-m-dev" class="text-4xl font-bold bw-hover inline-block px-2 -ml-2">
+                    Bhuvanesh M
+                </a>
+            </div>
+            
+            <div class="flex flex-col gap-2 text-right items-start md:items-end">
+                <div class="flex gap-4 font-mono text-sm uppercase">
+                    <a href="https://github.com/bhuvanesh-m-dev/cosmotools" class="bw-hover p-1">GitHub</a>
+                    <a href="https://x.com/bhuvaneshm06" class="bw-hover p-1">Twitter</a>
+                </div>
+                <p class="text-xs font-mono opacity-50 mt-4">
+                    BUILT_WITH_LOVE &copy; 2026 - Present
+                </p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
