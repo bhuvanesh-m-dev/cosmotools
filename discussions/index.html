@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Discussions | CosmoTools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Space Grotesk', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            scroll-behavior: smooth;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Brutalist utility classes */
+        .bw-border {
+            border: 2px solid var(--text-color);
+        }
+
+        .bw-border-b {
+            border-bottom: 2px solid var(--text-color);
+        }
+
+        .bw-hover {
+            transition: all 0.2s ease;
+        }
+
+        .bw-hover:hover {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        .bw-hover-invert {
+            transition: all 0.2s ease;
+            background-color: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        .bw-hover-invert:hover {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #000;
+            border-left: 2px solid #fff;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fff;
+        }
+
+        .grid-pattern {
+            background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .hero-text {
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+    </style>
+</head>
+<body class="grid-pattern min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-black bw-border-b">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <span class="font-bold text-2xl tracking-tighter font-mono uppercase">COSMO_FORUM</span>
+            <div class="hidden md:flex gap-1">
+                <a href="#topics" class="px-4 py-2 bw-hover font-mono text-sm uppercase">Topics</a>
+                <a href="#guidelines" class="px-4 py-2 bw-hover font-mono text-sm uppercase">Guidelines</a>
+                <a href="https://github.com/bhuvanesh-m-dev/cosmotools/discussions" target="_blank" class="px-4 py-2 bw-hover font-mono text-sm uppercase">Join Discussion</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-40 pb-20 px-6">
+        <!-- Hero Section -->
+        <section class="max-w-5xl mx-auto mb-32">
+            <div class="bw-border p-8 md:p-16 inline-block bg-black">
+                <h1 class="text-5xl md:text-8xl font-bold hero-text leading-[0.9] mb-10">
+                    Community<br/>
+                    Discussions
+                </h1>
+                <p class="text-xl md:text-2xl font-mono leading-relaxed max-w-4xl opacity-80">
+                    Welcome to the community space. This section is intended for open discussions, ideas, feedback, and collaboration related to the platform and its tools.
+                </p>
+            </div>
+        </section>
+
+        <!-- What this space is for -->
+        <section id="mission" class="max-w-7xl mx-auto mb-32 grid md:grid-cols-2 gap-0 bw-border bg-white text-black">
+            <div class="p-10 md:p-16 border-b-2 md:border-b-0 md:border-r-2 border-black">
+                <h2 class="text-4xl font-bold uppercase mb-8">What This Space Is For</h2>
+                <p class="text-lg leading-relaxed mb-6 font-medium">
+                    The discussions area is designed for collaborative interaction between users, contributors, and developers. Open discussions help shape the roadmap and future direction of the project.
+                </p>
+            </div>
+            <div class="p-10 md:p-16 bg-black text-white flex flex-col justify-center">
+                <ul class="font-mono space-y-4 text-sm md:text-base">
+                    <li class="flex gap-4"><span class="opacity-40">>></span> Share ideas for new tools or utilities</li>
+                    <li class="flex gap-4"><span class="opacity-40">>></span> Suggest improvements for existing features</li>
+                    <li class="flex gap-4"><span class="opacity-40">>></span> Ask questions about platform architecture</li>
+                    <li class="flex gap-4"><span class="opacity-40">>></span> Discuss technical approaches</li>
+                    <li class="flex gap-4"><span class="opacity-40">>></span> Provide feedback on usability & design</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Topics Grid -->
+        <section id="topics" class="max-w-7xl mx-auto mb-32">
+            <div class="flex items-center gap-4 mb-12">
+                <h2 class="text-4xl font-bold uppercase">Discussion Topics</h2>
+                <div class="h-[2px] flex-grow bg-white"></div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bw-border p-10 bg-black">
+                    <h3 class="text-2xl font-bold font-mono uppercase mb-4 tracking-tighter">_ Feature Ideas</h3>
+                    <p class="opacity-70 mb-6">Suggestions for new tools: PDF utilities, image processing, document converters, and dev productivity tools.</p>
+                    <div class="h-1 w-12 bg-white"></div>
+                </div>
+
+                <div class="bw-border p-10 bg-black">
+                    <h3 class="text-2xl font-bold font-mono uppercase mb-4 tracking-tighter">_ Technical Questions</h3>
+                    <p class="opacity-70 mb-6">Explore stateless design, browser-based processing, frontend implementation, and static hosting deployment.</p>
+                    <div class="h-1 w-12 bg-white"></div>
+                </div>
+
+                <div class="bw-border p-10 bg-black">
+                    <h3 class="text-2xl font-bold font-mono uppercase mb-4 tracking-tighter">_ Feedback & UI</h3>
+                    <p class="opacity-70 mb-6">Constructive thoughts on usability, interface design, performance metrics, and accessibility standards.</p>
+                    <div class="h-1 w-12 bg-white"></div>
+                </div>
+
+                <div class="bw-border p-10 bg-black">
+                    <h3 class="text-2xl font-bold font-mono uppercase mb-4 tracking-tighter">_ Collaboration</h3>
+                    <p class="opacity-70 mb-6">Pre-submission discussions for developers planning to contribute or submit pull requests.</p>
+                    <div class="h-1 w-12 bg-white"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Community Guidelines -->
+        <section id="guidelines" class="max-w-5xl mx-auto mb-32">
+            <div class="bw-border p-10 md:p-16 bg-white text-black">
+                <h2 class="text-4xl font-bold uppercase mb-10 font-mono tracking-tighter">Community Guidelines</h2>
+                <div class="space-y-6 font-mono font-medium">
+                    <div class="pb-6 border-b border-black/10">
+                        <span class="block text-xs uppercase opacity-50 mb-1">Rule 01</span>
+                        <p class="text-xl">Be respectful and constructive in all discussions.</p>
+                    </div>
+                    <div class="pb-6 border-b border-black/10">
+                        <span class="block text-xs uppercase opacity-50 mb-1">Rule 02</span>
+                        <p class="text-xl">Stay on topic and keep conversations relevant to the project.</p>
+                    </div>
+                    <div class="pb-6 border-b border-black/10">
+                        <span class="block text-xs uppercase opacity-50 mb-1">Rule 03</span>
+                        <p class="text-xl">Provide clear descriptions when asking questions or suggesting ideas.</p>
+                    </div>
+                    <div class="pb-6">
+                        <span class="block text-xs uppercase opacity-50 mb-1">Rule 04</span>
+                        <p class="text-xl">Avoid spam or unrelated promotional content.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Call to Action -->
+        <section class="max-w-5xl mx-auto text-center mb-10">
+            <div class="bw-border p-16 bg-black">
+                <h2 class="text-4xl font-bold uppercase mb-8">Ready to join in?</h2>
+                <p class="font-mono text-lg mb-10 opacity-70">Whether you are a developer, designer, or user, your voice helps shape this ecosystem.</p>
+                <a href="https://github.com/bhuvanesh-m-dev/cosmotools/discussions" target="_blank" class="px-10 py-5 bw-hover-invert font-bold uppercase tracking-tighter text-2xl inline-block">
+                    Open GitHub Discussions _
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bw-border-t py-16 bg-black mt-20">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-12">
+            <div>
+                <p class="font-mono text-sm uppercase mb-4 opacity-50 tracking-widest">Collaborate on</p>
+                <a href="https://github.com/bhuvanesh-m-dev" class="text-4xl font-bold bw-hover inline-block px-2 -ml-2 uppercase tracking-tighter">
+                    Bhuvanesh M
+                </a>
+            </div>
+            
+            <div class="flex flex-col gap-2 text-right items-start md:items-end">
+                <div class="flex gap-4 font-mono text-sm uppercase">
+                    <a href="https://github.com/bhuvanesh-m-dev/cosmotools/issues" class="bw-hover p-1">Issues</a>
+                    <a href="https://github.com/bhuvanesh-m-dev/cosmotools/discussions" class="bw-hover p-1">Discussions</a>
+                    <a href="https://github.com/bhuvanesh-m-dev/cosmotools/wiki" class="bw-hover p-1">Wiki</a>
+                </div>
+                <p class="text-xs font-mono opacity-50 mt-4 uppercase tracking-widest">
+                    CosmoTools Community Core // 2026 - Present
+                </p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
