@@ -1,0 +1,80 @@
+:root {
+    --bg-color: #000000;
+    --text-color: #ffffff;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Space Grotesk', sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+.font-mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Brutalist utility classes */
+.bw-border {
+    border: 2px solid var(--text-color);
+}
+
+.bw-border-b {
+    border-bottom: 2px solid var(--text-color);
+}
+
+.bw-hover {
+    transition: all 0.2s ease;
+}
+
+.bw-hover:hover {
+    background-color: var(--text-color);
+    color: var(--bg-color);
+}
+
+.bw-hover-invert {
+    transition: all 0.2s ease;
+    background-color: var(--text-color);
+    color: var(--bg-color);
+}
+
+.bw-hover-invert:hover {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+::-webkit-scrollbar-track {
+    background: #000;
+    border-left: 2px solid #fff;
+}
+::-webkit-scrollbar-thumb {
+    background: #fff;
+}
+
+/* File List specific */
+#file-list {
+    max-height: 600px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.drag-over {
+    background-color: var(--text-color) !important;
+    color: var(--bg-color) !important;
+    border-style: solid !important;
+}
+
+.drag-over * {
+    color: var(--bg-color) !important;
+}
+
+.grid-pattern {
+    background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+}

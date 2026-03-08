@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merge PDF - CosmoPDF</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://unpkg.com/downloadjs@1.4.7/download.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen flex flex-col selection:bg-white selection:text-black">
+    <!-- Navigation -->
+    <nav class="bw-border-b sticky top-0 bg-black z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center gap-3">
+                    <a href="../index.html" class="flex items-center gap-3 group">
+                        <div class="w-8 h-8 bg-white text-black flex items-center justify-center font-bold font-mono text-xl group-hover:bg-gray-200 transition">
+                            <i class="fas fa-arrow-left text-sm"></i>
+                        </div>
+                        <span class="font-bold text-2xl tracking-tight">CosmoPDF</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-12 relative">
+        <div class="absolute inset-0 grid-pattern opacity-30 pointer-events-none -z-10"></div>
+        
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold tracking-tighter mb-4">Merge PDF Files</h1>
+            <p class="font-mono text-gray-400">Combine multiple PDFs into one unified document.</p>
+        </div>
+
+        <!-- Upload Area -->
+        <div id="drop-zone" class="bg-black border-2 border-dashed border-white p-12 text-center hover:bg-white hover:text-black transition-all cursor-pointer mb-12 group">
+            <input type="file" id="file-input" class="hidden" accept=".pdf" multiple>
+            <div class="pointer-events-none">
+                <i class="fas fa-cloud-upload-alt text-5xl mb-6 group-hover:scale-110 transition-transform"></i>
+                <h3 class="text-xl font-bold font-mono uppercase mb-2">Drop PDF files here</h3>
+                <p class="text-sm font-mono opacity-70">or click to select files</p>
+            </div>
+        </div>
+
+        <!-- File List -->
+        <div id="file-list-container" class="hidden">
+            <div class="flex justify-between items-center mb-6 border-b-2 border-white pb-4">
+                <h3 class="text-xl font-bold uppercase">Selected Files (<span id="file-count">0</span>)</h3>
+                <button id="clear-all" class="font-mono text-sm font-bold hover:underline text-white hover:text-gray-300">CLEAR ALL</button>
+            </div>
+            
+            <div id="file-list" class="space-y-3 mb-8">
+                <!-- File items will be injected here -->
+            </div>
+
+            <button id="merge-btn" class="w-full bw-border bw-hover-invert py-4 font-bold text-xl uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed">
+                Merge PDFs
+            </button>
+        </div>
+        
+        <!-- Loading State -->
+        <div id="loading" class="hidden fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 backdrop-blur-sm">
+            <div class="bg-black border-2 border-white p-8 flex flex-col items-center max-w-sm w-full mx-4">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-6"></div>
+                <p class="text-white font-mono font-bold uppercase tracking-widest">Merging...</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
