@@ -13,7 +13,7 @@
     <script src="https://unpkg.com/downloadjs@1.4.7/download.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="min-h-screen flex flex-col selection:bg-white selection:text-black">
+<body class="min-h-screen flex flex-col selection:bg-white selection:text-black bg-black text-white">
     <!-- Navigation -->
     <nav class="bw-border-b sticky top-0 bg-black z-50">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,6 +26,9 @@
                         <span class="font-bold text-2xl tracking-tight">CosmoPDF</span>
                     </a>
                 </div>
+                <button id="theme-toggle" class="w-10 h-10 border border-white text-white flex items-center justify-center hover:bg-white hover:text-black transition" aria-label="Toggle Theme">
+                    <i class="fas fa-sun"></i>
+                </button>
             </div>
         </div>
     </nav>
@@ -73,6 +76,39 @@
             </div>
         </div>
     </main>
+
+    <!-- Footer -->
+    <footer class="border-t-2 border-white bg-black text-white mt-auto">
+        <div class="max-w-6xl mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="font-bold text-xl mb-4">CosmoTools</h3>
+                    <p class="font-mono text-sm text-gray-400 mb-4">Open source developer tools for the modern web.</p>
+                    <a href="https://bhuvanesh-m-dev.github.io/cosmotools" class="inline-flex items-center gap-2 font-bold hover:underline">
+                        Explore more tools <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div>
+                    <h4 class="font-bold font-mono uppercase mb-4">Project</h4>
+                    <ul class="space-y-2 font-mono text-sm text-gray-400">
+                        <li><a href="https://bhuvanesh-m-dev.github.io/cosmotools/about/" class="hover:text-white transition-colors">About</a></li>
+                        <li><a href="https://bhuvanesh-m-dev.github.io/cosmotools/vision-and-roadmap/" class="hover:text-white transition-colors">Vision & Roadmap</a></li>
+                        <li><a href="https://bhuvanesh-m-dev.github.io/cosmotools/press-and-announcements/" class="hover:text-white transition-colors">Press & Announcements</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold font-mono uppercase mb-4">Community</h4>
+                    <ul class="space-y-2 font-mono text-sm text-gray-400">
+                        <li><a href="https://bhuvanesh-m-dev.github.io/cosmotools/contribute/" class="hover:text-white transition-colors">Contribute</a></li>
+                        <li><a href="https://bhuvanesh-m-dev.github.io/cosmotools/discussions/" class="hover:text-white transition-colors">Discussions</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center font-mono text-xs text-gray-500">
+                <p>&copy; 2026 - Present CosmoTools. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
 
     <script src="script.js"></script>
 </body>
