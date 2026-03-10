@@ -26,18 +26,18 @@
 <body class="min-h-screen flex flex-col">
 
     <!-- Header -->
-    <header class="border-b border-[var(--border-color)] bg-[var(--card-bg)] sticky top-0 z-50 backdrop-blur-md bg-opacity-90">
+    <header class="border-b-2 border-black bg-white text-black sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-blue-600 flex items-center justify-center text-white font-bold rounded">
+                <div class="w-8 h-8 bg-black text-white flex items-center justify-center font-bold border-2 border-black">
                     <i class="fas fa-layer-group"></i>
                 </div>
-                <h1 class="text-xl font-bold tracking-tight">PDF <span class="text-blue-500">Architect</span></h1>
+                <h1 class="text-xl font-bold tracking-tight">PDF <span class="font-light">Architect</span></h1>
             </div>
             
             <div class="flex items-center gap-4">
-                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors" title="Toggle Theme">
-                    <i class="fas fa-sun theme-icon text-yellow-500" id="theme-icon"></i>
+                <button id="theme-toggle" class="w-10 h-10 border-2 border-black text-black flex items-center justify-center hover:bg-black hover:text-white transition-colors" title="Toggle Theme">
+                    <i class="fas fa-sun" id="theme-icon"></i>
                 </button>
             </div>
         </div>
@@ -48,10 +48,11 @@
         
         <!-- Intro Text -->
         <div class="text-center mb-10">
-            <h2 class="text-3xl md:text-4xl font-bold mb-3">Single PDF Editor</h2>
-            <p class="text-gray-500 max-w-2xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold mb-3 tracking-tight">Single PDF Editor</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto font-mono text-sm">
                 Upload a PDF to rearrange pages, rotate them, or split into a new document by selecting specific page numbers.
             </p>
+            <div class="w-20 h-1 bg-black mx-auto mt-4"></div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -60,60 +61,63 @@
             <div class="lg:col-span-4 space-y-6">
                 
                 <!-- Drop Zone -->
-                <div id="drop-zone" class="drop-zone rounded-xl p-8 text-center cursor-pointer bg-[var(--card-bg)] group">
+                <div id="drop-zone" class="drop-zone border-2 border-black bg-white p-8 text-center cursor-pointer hover:bg-black hover:text-white transition-all group">
                     <input type="file" id="file-input" class="hidden" accept=".pdf">
-                    <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                    <div class="w-16 h-16 bg-black text-white border-2 border-black flex items-center justify-center mx-auto mb-4 group-hover:bg-white group-hover:text-black transition-all">
                         <i class="fas fa-cloud-upload-alt text-2xl"></i>
                     </div>
-                    <h3 class="text-lg font-semibold mb-1">Upload PDF</h3>
-                    <p class="text-sm text-gray-500 mb-4">Drag & drop file here or click to browse</p>
-                    <button class="btn-brutalist px-6 py-2 rounded font-mono text-sm font-bold">
+                    <h3 class="text-lg font-bold mb-1 uppercase tracking-wider">Upload PDF</h3>
+                    <p class="text-sm mb-4 opacity-70 font-mono">Drag & drop file here or click to browse</p>
+                    <button class="border-2 border-black px-6 py-2 font-mono text-sm font-bold hover:bg-white hover:text-black transition-all bg-black text-white">
                         SELECT FILE
                     </button>
                 </div>
 
                 <!-- File Info -->
-                <div id="file-info" class="hidden bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] p-4">
+                <div id="file-info" class="hidden border-2 border-black bg-white p-4">
                     <div class="flex items-center gap-3 mb-3">
-                        <div class="w-10 h-10 bg-red-100 dark:bg-red-900/30 text-red-600 rounded flex items-center justify-center">
+                        <div class="w-10 h-10 bg-black text-white border-2 border-black flex items-center justify-center">
                             <i class="fas fa-file-pdf text-lg"></i>
                         </div>
                         <div class="min-w-0 flex-1">
                             <p class="font-bold text-sm truncate" id="file-name">document.pdf</p>
-                            <p class="text-xs text-gray-500" id="file-size">2.5 MB</p>
+                            <p class="text-xs text-gray-600 font-mono" id="file-size">2.5 MB</p>
                         </div>
-                        <button id="clear-file-btn" class="text-red-500 hover:text-red-700 p-2">
+                        <button id="clear-file-btn" class="text-black hover:text-gray-600 p-2">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
-                    <div class="border-t border-[var(--border-color)] pt-3">
-                        <p class="text-xs text-gray-500 mb-1">Total Pages: <span id="total-pages" class="font-bold text-[var(--text-color)]">0</span></p>
+                    <div class="border-t-2 border-black pt-3">
+                        <p class="text-xs font-mono mb-1">Total Pages: <span id="total-pages" class="font-bold">0</span></p>
                     </div>
                 </div>
 
                 <!-- Split Controls -->
-                <div id="split-controls" class="hidden bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] p-4 space-y-4">
-                    <h3 class="font-bold text-sm uppercase tracking-wider text-gray-500 mb-2">Split & Extract</h3>
+                <div id="split-controls" class="hidden border-2 border-black bg-white p-4 space-y-4">
+                    <h3 class="font-bold text-sm uppercase tracking-wider mb-2 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-black"></span>
+                        Split & Extract
+                    </h3>
                     
                     <div>
-                        <label class="block text-xs font-medium mb-2">Page Selection</label>
+                        <label class="block text-xs font-bold mb-2 uppercase tracking-wider">Page Selection</label>
                         <input type="text" id="page-range-input" placeholder="e.g., 1,3,5-10,12" 
-                            class="w-full px-3 py-2 rounded border border-[var(--border-color)] bg-[var(--bg-color)] text-[var(--text-color)] text-sm font-mono focus:outline-none focus:border-blue-500">
-                        <p class="text-xs text-gray-500 mt-1">Use commas and hyphens (e.g., 1-5, 8, 11-13)</p>
+                            class="w-full px-3 py-2 border-2 border-black bg-white text-black text-sm font-mono focus:outline-none focus:bg-black focus:text-white transition-colors">
+                        <p class="text-xs text-gray-600 mt-1 font-mono">Use commas and hyphens (e.g., 1-5, 8, 11-13)</p>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2">
-                        <button id="select-all-btn" class="px-3 py-2 rounded border border-[var(--border-color)] hover:bg-gray-100 dark:hover:bg-gray-800 text-xs font-bold transition-colors">
+                        <button id="select-all-btn" class="px-3 py-2 border-2 border-black hover:bg-black hover:text-white text-xs font-bold transition-colors">
                             Select All
                         </button>
-                        <button id="clear-selection-btn" class="px-3 py-2 rounded border border-[var(--border-color)] hover:bg-gray-100 dark:hover:bg-gray-800 text-xs font-bold transition-colors">
+                        <button id="clear-selection-btn" class="px-3 py-2 border-2 border-black hover:bg-black hover:text-white text-xs font-bold transition-colors">
                             Clear Selection
                         </button>
                     </div>
 
-                    <div class="border-t border-[var(--border-color)] pt-4 space-y-2">
-                        <p class="text-xs text-gray-500">Selected: <span id="selected-count" class="font-bold text-blue-500">0</span> pages</p>
-                        <button id="download-selected-btn" class="btn-brutalist w-full py-3 rounded-lg font-bold text-sm flex items-center justify-center gap-2" disabled>
+                    <div class="border-t-2 border-black pt-4 space-y-2">
+                        <p class="text-xs font-mono">Selected: <span id="selected-count" class="font-bold">0</span> pages</p>
+                        <button id="download-selected-btn" class="w-full py-3 border-2 border-black font-bold text-sm flex items-center justify-center gap-2 bg-black text-white hover:bg-white hover:text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                             <i class="fas fa-download"></i> Download Selected
                         </button>
                     </div>
@@ -121,10 +125,10 @@
 
                 <!-- Global Actions -->
                 <div id="global-actions" class="hidden space-y-3">
-                    <button id="rotate-all-btn" class="btn-brutalist w-full py-3 rounded-lg font-bold text-sm flex items-center justify-center gap-2">
+                    <button id="rotate-all-btn" class="w-full py-3 border-2 border-black font-bold text-sm flex items-center justify-center gap-2 hover:bg-black hover:text-white transition-colors">
                         <i class="fas fa-sync-alt"></i> Rotate All 90°
                     </button>
-                    <button id="reset-btn" class="btn-brutalist w-full py-3 rounded-lg font-bold text-sm flex items-center justify-center gap-2">
+                    <button id="reset-btn" class="w-full py-3 border-2 border-black font-bold text-sm flex items-center justify-center gap-2 hover:bg-black hover:text-white transition-colors">
                         <i class="fas fa-undo"></i> Reset All Changes
                     </button>
                 </div>
@@ -132,17 +136,17 @@
 
             <!-- Right Column: Visual Editor -->
             <div class="lg:col-span-8">
-                <div class="bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] min-h-[600px] flex flex-col relative">
+                <div class="border-2 border-black bg-white min-h-[600px] flex flex-col relative">
                     
                     <!-- Toolbar -->
-                    <div class="p-4 border-b border-[var(--border-color)] flex flex-wrap gap-3 items-center justify-between bg-gray-50 dark:bg-gray-900/50">
+                    <div class="p-4 border-b-2 border-black flex flex-wrap gap-3 items-center justify-between bg-gray-50">
                         <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold uppercase text-gray-500 mr-2">Page Editor:</span>
-                            <button id="save-pdf-btn" class="px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold transition-colors" disabled>
+                            <span class="text-xs font-bold uppercase tracking-wider mr-2">Page Editor:</span>
+                            <button id="save-pdf-btn" class="px-3 py-1.5 border-2 border-black bg-black text-white hover:bg-white hover:text-black text-xs font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                                 <i class="fas fa-save mr-1"></i> Save Full PDF
                             </button>
                         </div>
-                        <div class="text-xs text-gray-500 font-mono" id="editor-status">
+                        <div class="text-xs font-mono" id="editor-status">
                             No file loaded
                         </div>
                     </div>
@@ -152,12 +156,12 @@
                         <!-- Empty State -->
                         <div class="col-span-full flex flex-col items-center justify-center py-20 text-gray-400">
                             <i class="fas fa-th-large text-4xl mb-4 opacity-20"></i>
-                            <p>Upload a PDF to start editing</p>
+                            <p class="font-mono">Upload a PDF to start editing</p>
                         </div>
                     </div>
 
                     <!-- Loading Overlay -->
-                    <div id="loading" class="absolute inset-0 bg-[var(--bg-color)] bg-opacity-90 z-50 hidden flex-col items-center justify-center rounded-xl backdrop-blur-sm">
+                    <div id="loading" class="absolute inset-0 bg-white bg-opacity-90 z-50 hidden flex-col items-center justify-center border-2 border-black">
                         <div class="loader mb-4"></div>
                         <p class="font-mono text-sm animate-pulse">Processing PDF...</p>
                     </div>
@@ -167,9 +171,36 @@
         </div>
     </main>
 
-    <footer class="border-t border-[var(--border-color)] mt-auto py-6 bg-[var(--card-bg)]">
-        <div class="container mx-auto px-4 text-center text-sm text-gray-500">
-            <p>&copy; 2026 PDF Architect. Built with PDF-lib & PDF.js.</p>
+    <!-- Footer -->
+    <footer id="main-footer" class="border-t-2 border-black bg-black text-white mt-auto">
+        <div class="max-w-6xl mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="font-bold text-xl mb-4">CosmoTools</h3>
+                    <p class="font-mono text-sm text-gray-400 mb-4">Open source developer tools for the modern web.</p>
+                    <a href="https://bhuvanesh-m-dev.github.io/cosmotools" class="inline-flex items-center gap-2 font-bold hover:underline text-white footer-link">
+                        Explore more tools <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div>
+                    <h4 class="font-bold font-mono uppercase mb-4 text-white footer-heading">Project</h4>
+                    <ul class="space-y-2 font-mono text-sm text-gray-400">
+                        <li><a href="https://bhuvanesh-m-dev.github.io/cosmotools/about/" class="hover:text-white transition-colors footer-link">About</a></li>
+                        <li><a href="https://bhuvanesh-m-dev.github.io/cosmotools/vision-and-roadmap/" class="hover:text-white transition-colors footer-link">Vision & Roadmap</a></li>
+                        <li><a href="https://bhuvanesh-m-dev.github.io/cosmotools/press-and-announcements/" class="hover:text-white transition-colors footer-link">Press & Announcements</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold font-mono uppercase mb-4 text-white footer-heading">Community</h4>
+                    <ul class="space-y-2 font-mono text-sm text-gray-400">
+                        <li><a href="https://bhuvanesh-m-dev.github.io/cosmotools/contribute/" class="hover:text-white transition-colors footer-link">Contribute</a></li>
+                        <li><a href="https://bhuvanesh-m-dev.github.io/cosmotools/discussions/" class="hover:text-white transition-colors footer-link">Discussions</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center font-mono text-xs text-gray-500 footer-copyright">
+                <p>&copy; 2026 - Present CosmoTools. All rights reserved.</p>
+            </div>
         </div>
     </footer>
 
