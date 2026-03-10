@@ -1,6 +1,7 @@
 // --- State Management ---
 let currentFile = null;
-let conversionType = 'pdf-to-docx'; // 'pdf-to-docx' or 'docx-to-pdf'
+let currentFileBuffer = null;
+let conversionType = 'pdf-to-docx';
 let isConverting = false;
 
 // --- DOM Elements ---
@@ -20,6 +21,10 @@ const loadingDetail = document.getElementById('loading-detail');
 const uploadTitle = document.getElementById('upload-title');
 const uploadSubtitle = document.getElementById('upload-subtitle');
 const fileFormatHint = document.getElementById('file-format-hint');
+const progressContainer = document.getElementById('progress-container');
+const progressBar = document.getElementById('progress-bar');
+const progressStatus = document.getElementById('progress-status');
+const progressPercentage = document.getElementById('progress-percentage');
 
 // Conversion type buttons
 const pdfToDocxBtn = document.getElementById('pdf-to-docx-btn');
@@ -33,13 +38,27 @@ const conversionOptions = document.getElementById('conversion-options');
 // Checkboxes
 const preserveLayout = document.getElementById('preserve-layout');
 const extractImages = document.getElementById('extract-images');
+const extractText = document.getElementById('extract-text');
 const embedFonts = document.getElementById('embed-fonts');
 const highQuality = document.getElementById('high-quality');
+const preserveFormatting = document.getElementById('preserve-formatting');
 
 // --- Initialization ---
 
+// PDF.js Worker - Fix worker URL
+if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+    console.log('PDF.js initialized');
+}
+
+// Check if libraries are loaded
+console.log('Mammoth loaded:', typeof mammoth !== 'undefined');
+console.log('JSZip loaded:', typeof JSZip !== 'undefined');
+console.log('PDFLib loaded:', typeof PDFLib !== 'undefined');
+console.log('saveAs loaded:', typeof saveAs !== 'undefined');
+
 // Theme Logic
-const savedTheme = localStorage.getItem('docflex-theme');
+const savedTheme = localStorage.getItem('docxflex-theme');
 
 if (savedTheme === 'light') {
     document.body.classList.add('light-theme');
@@ -49,10 +68,10 @@ if (savedTheme === 'light') {
 themeToggleBtn.addEventListener('click', () => {
     document.body.classList.toggle('light-theme');
     if (document.body.classList.contains('light-theme')) {
-        localStorage.setItem('docflex-theme', 'light');
+        localStorage.setItem('docxflex-theme', 'light');
         themeIcon.classList.replace('fa-sun', 'fa-moon');
     } else {
-        localStorage.setItem('docflex-theme', 'dark');
+        localStorage.setItem('docxflex-theme', 'dark');
         themeIcon.classList.replace('fa-moon', 'fa-sun');
     }
 });
@@ -69,25 +88,41 @@ docxToPdfBtn.addEventListener('click', () => setConversionType('docx-to-pdf'));
 // Drag & Drop
 dropZone.addEventListener('dragover', (e) => {
     e.preventDefault();
+    e.stopPropagation();
     dropZone.classList.add('drag-over');
 });
 
-dropZone.addEventListener('dragleave', () => {
+dropZone.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     dropZone.classList.remove('drag-over');
 });
 
 dropZone.addEventListener('drop', (e) => {
     e.preventDefault();
+    e.stopPropagation();
     dropZone.classList.remove('drag-over');
+    
     const files = e.dataTransfer.files;
-    if (files.length > 0) handleFile(files[0]);
+    console.log('Files dropped:', files);
+    
+    if (files.length > 0) {
+        handleFile(files[0]);
+    }
 });
 
-dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('click', () => {
+    console.log('Drop zone clicked');
+    fileInput.click();
+});
 
+// File input change event
 fileInput.addEventListener('change', (e) => {
-    if (e.target.files.length > 0) handleFile(e.target.files[0]);
-    fileInput.value = '';
+    console.log('File input changed', e.target.files);
+    if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+    }
+    // Don't reset the input value here, it causes issues
 });
 
 clearFileBtn.addEventListener('click', clearFile);
@@ -127,9 +162,12 @@ function setConversionType(type) {
     }
 }
 
-function handleFile(file) {
+async function handleFile(file) {
+    console.log('Handling file:', file);
+    
     // Validate file type based on conversion type
     const isValid = validateFileType(file);
+    console.log('File valid:', isValid);
     
     if (!isValid) {
         alert(`Please upload a valid ${conversionType === 'pdf-to-docx' ? 'PDF' : 'DOCX/DOC'} file.`);
@@ -138,27 +176,50 @@ function handleFile(file) {
     
     currentFile = file;
     
-    // Update UI
-    fileNameEl.textContent = file.name;
-    fileSizeEl.textContent = formatSize(file.size);
-    
-    // Set appropriate icon
-    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
-    fileIcon.innerHTML = isPdf ? '<i class="fas fa-file-pdf"></i>' : '<i class="fas fa-file-word"></i>';
-    
-    fileInfo.classList.remove('hidden');
-    conversionOptions.classList.remove('hidden');
-    convertBtn.disabled = false;
+    try {
+        // Read file as ArrayBuffer
+        currentFileBuffer = await readFileAsArrayBuffer(file);
+        console.log('File buffer size:', currentFileBuffer.byteLength);
+        
+        // Update UI
+        fileNameEl.textContent = file.name;
+        fileSizeEl.textContent = formatSize(file.size);
+        
+        // Set appropriate icon
+        const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+        fileIcon.innerHTML = isPdf ? '<i class="fas fa-file-pdf"></i>' : '<i class="fas fa-file-word"></i>';
+        
+        fileInfo.classList.remove('hidden');
+        conversionOptions.classList.remove('hidden');
+        convertBtn.disabled = false;
+        
+    } catch (error) {
+        console.error('Error reading file:', error);
+        alert('Error reading file. Please try again.');
+    }
+}
+
+// Helper function to read file as ArrayBuffer
+function readFileAsArrayBuffer(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = (e) => reject(new Error('Error reading file'));
+        reader.readAsArrayBuffer(file);
+    });
 }
 
 function validateFileType(file) {
     const fileName = file.name.toLowerCase();
+    const fileType = file.type;
+    
+    console.log('Validating - Name:', fileName, 'Type:', fileType, 'Conversion:', conversionType);
     
     if (conversionType === 'pdf-to-docx') {
-        return file.type === 'application/pdf' || fileName.endsWith('.pdf');
+        return fileType === 'application/pdf' || fileName.endsWith('.pdf');
     } else {
-        return file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 
-               file.type === 'application/msword' || 
+        return fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 
+               fileType === 'application/msword' || 
                fileName.endsWith('.docx') || 
                fileName.endsWith('.doc');
     }
@@ -166,103 +227,246 @@ function validateFileType(file) {
 
 function clearFile() {
     currentFile = null;
+    currentFileBuffer = null;
     fileInfo.classList.add('hidden');
     conversionOptions.classList.add('hidden');
     convertBtn.disabled = true;
+    progressContainer.classList.add('hidden');
+    
+    // Reset file input
+    fileInput.value = '';
+}
+
+function updateProgress(percent, status) {
+    progressContainer.classList.remove('hidden');
+    progressBar.style.width = `${percent}%`;
+    progressPercentage.textContent = `${percent}%`;
+    if (status) {
+        progressStatus.textContent = status;
+    }
 }
 
 async function startConversion() {
-    if (!currentFile || isConverting) return;
+    if (!currentFile || !currentFileBuffer || isConverting) {
+        console.log('Cannot convert:', { currentFile, currentFileBuffer, isConverting });
+        return;
+    }
     
     isConverting = true;
     convertBtn.disabled = true;
     
-    // Show loading modal
-    loadingModal.classList.remove('hidden');
-    loadingStatus.textContent = 'Converting...';
-    loadingDetail.textContent = 'This may take a moment';
-    
-    // Simulate conversion progress
-    let progress = 0;
-    const progressInterval = setInterval(() => {
-        progress += Math.random() * 10;
-        if (progress >= 100) {
-            clearInterval(progressInterval);
-        }
-        loadingDetail.textContent = `Processing: ${Math.min(100, Math.floor(progress))}%`;
-    }, 200);
+    // Show progress
+    progressContainer.classList.remove('hidden');
+    updateProgress(0, 'Starting conversion...');
     
     try {
-        // Simulate conversion (replace with actual conversion library)
-        await simulateConversion();
-        
-        clearInterval(progressInterval);
-        loadingStatus.textContent = 'Complete!';
-        loadingDetail.textContent = 'Preparing download...';
-        
-        // Simulate download
-        setTimeout(() => {
-            // Create fake download (replace with actual converted file)
-            const convertedFileName = conversionType === 'pdf-to-docx' 
-                ? currentFile.name.replace('.pdf', '.docx')
-                : currentFile.name.replace(/\.docx?/, '.pdf');
-            
-            simulateDownload(convertedFileName);
-            
-            // Hide loading modal
-            loadingModal.classList.add('hidden');
-            isConverting = false;
-            convertBtn.disabled = false;
-            
-            // Show success message
-            showNotification('Conversion complete!', 'success');
-        }, 1000);
-        
+        if (conversionType === 'pdf-to-docx') {
+            await convertPdfToDocx();
+        } else {
+            await convertDocxToPdf();
+        }
     } catch (error) {
-        clearInterval(progressInterval);
         console.error('Conversion error:', error);
-        loadingModal.classList.add('hidden');
+        alert('Conversion failed: ' + error.message);
+    } finally {
         isConverting = false;
         convertBtn.disabled = false;
-        showNotification('Conversion failed. Please try again.', 'error');
+        setTimeout(() => {
+            progressContainer.classList.add('hidden');
+        }, 3000);
     }
 }
 
-// Simulate conversion (replace with actual conversion library)
-function simulateConversion() {
-    return new Promise((resolve) => {
-        setTimeout(resolve, 3000);
+// PDF to DOCX Conversion
+async function convertPdfToDocx() {
+    updateProgress(10, 'Loading PDF...');
+    
+    try {
+        // Load PDF with PDF.js
+        const pdf = await pdfjsLib.getDocument({ data: currentFileBuffer }).promise;
+        const numPages = pdf.numPages;
+        
+        updateProgress(20, `Processing ${numPages} pages...`);
+        
+        // Extract text from each page
+        let fullText = '';
+        
+        for (let i = 1; i <= numPages; i++) {
+            updateProgress(20 + Math.floor((i / numPages) * 60), `Extracting page ${i} of ${numPages}...`);
+            
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            const pageText = textContent.items.map(item => item.str).join(' ');
+            fullText += `Page ${i}\n${pageText}\n\n`;
+        }
+        
+        updateProgress(85, 'Creating DOCX file...');
+        
+        // Create DOCX using JSZip
+        const zip = new JSZip();
+        
+        // Create basic DOCX structure
+        const docProps = zip.folder('docProps');
+        docProps.file('app.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+            <Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties">
+                <Pages>${numPages}</Pages>
+                <Company>DocxFlex by CosmoTools</Company>
+            </Properties>`);
+        
+        // Create document content
+        const word = zip.folder('word');
+        
+        // Create document.xml with content
+        let documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+            <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+                <w:body>`;
+        
+        // Add text content
+        const paragraphs = fullText.split('\n\n');
+        paragraphs.forEach((para) => {
+            if (para.trim()) {
+                documentXml += `
+                    <w:p>
+                        <w:r>
+                            <w:t>${escapeXml(para)}</w:t>
+                        </w:r>
+                    </w:p>`;
+            }
+        });
+        
+        documentXml += `
+                </w:body>
+            </w:document>`;
+        
+        word.file('document.xml', documentXml);
+        
+        // Add minimal required files
+        zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8"?>
+            <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+                <Default Extension="xml" ContentType="application/xml"/>
+                <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+                <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+            </Types>`);
+        
+        const _rels = zip.folder('_rels');
+        _rels.file('.rels', `<?xml version="1.0" encoding="UTF-8"?>
+            <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+                <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+            </Relationships>`);
+        
+        // Generate DOCX
+        const docxBlob = await zip.generateAsync({ type: 'blob' });
+        
+        updateProgress(100, 'Downloading...');
+        
+        // Download the file
+        const outputFileName = currentFile.name.replace(/\.pdf$/i, '.docx') || 'converted.docx';
+        saveAs(docxBlob, outputFileName);
+        
+    } catch (error) {
+        console.error('PDF to DOCX conversion error:', error);
+        throw new Error('Failed to convert PDF to DOCX: ' + error.message);
+    }
+}
+
+// DOCX to PDF Conversion
+async function convertDocxToPdf() {
+    updateProgress(10, 'Loading DOCX...');
+    
+    try {
+        // Use mammoth to extract text from DOCX
+        const result = await mammoth.extractRawText({ arrayBuffer: currentFileBuffer });
+        const text = result.value;
+        
+        updateProgress(40, 'Extracted text from DOCX');
+        
+        // Create PDF using PDF-lib
+        const pdfDoc = await PDFLib.PDFDocument.create();
+        
+        // Split text into pages (roughly 2000 characters per page)
+        const charsPerPage = 2000;
+        const lines = text.split('\n');
+        let pages = [];
+        let currentPage = '';
+        
+        for (const line of lines) {
+            if ((currentPage + line).length > charsPerPage) {
+                pages.push(currentPage);
+                currentPage = line + '\n';
+            } else {
+                currentPage += line + '\n';
+            }
+        }
+        if (currentPage) {
+            pages.push(currentPage);
+        }
+        
+        // If no pages were created, create at least one
+        if (pages.length === 0) {
+            pages = [text || ' '];
+        }
+        
+        updateProgress(60, `Creating ${pages.length} PDF pages...`);
+        
+        // Set font
+        const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+        
+        for (let i = 0; i < pages.length; i++) {
+            updateProgress(60 + Math.floor((i / pages.length) * 30), `Adding page ${i + 1} of ${pages.length}...`);
+            
+            const page = pdfDoc.addPage([595, 842]); // A4 size
+            const { width, height } = page.getSize();
+            
+            // Add text to page
+            page.drawText(pages[i], {
+                x: 50,
+                y: height - 50,
+                size: 11,
+                font: font,
+                lineHeight: 14,
+                maxWidth: width - 100,
+            });
+            
+            // Add page number
+            page.drawText(`${i + 1}`, {
+                x: width / 2,
+                y: 30,
+                size: 10,
+                font: font,
+            });
+        }
+        
+        updateProgress(95, 'Finalizing PDF...');
+        
+        // Save PDF
+        const pdfBytes = await pdfDoc.save();
+        const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+        
+        updateProgress(100, 'Downloading...');
+        
+        // Download the file
+        const outputFileName = currentFile.name.replace(/\.docx?$/i, '.pdf') || 'converted.pdf';
+        saveAs(pdfBlob, outputFileName);
+        
+    } catch (error) {
+        console.error('DOCX to PDF conversion error:', error);
+        throw new Error('Failed to convert DOCX to PDF: ' + error.message);
+    }
+}
+
+// Helper function to escape XML special characters
+function escapeXml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe.replace(/[<>&'"]/g, (c) => {
+        switch (c) {
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '&': return '&amp;';
+            case "'": return '&apos;';
+            case '"': return '&quot;';
+            default: return c;
+        }
     });
-}
-
-// Simulate download (replace with actual file download)
-function simulateDownload(filename) {
-    // Create a simple text file as placeholder
-    const content = `This is a simulated ${filename} file.\n\nOriginal file: ${currentFile.name}\nConversion type: ${conversionType}\nOptions:\n- Preserve Layout: ${preserveLayout?.checked || false}\n- Extract Images: ${extractImages?.checked || false}\n- Embed Fonts: ${embedFonts?.checked || false}\n- High Quality: ${highQuality?.checked || false}`;
-    
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename + '.txt'; // Add .txt for simulation
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-}
-
-function showNotification(message, type = 'info') {
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = `fixed bottom-4 right-4 border-2 border-white p-4 font-mono text-sm animate-slideIn ${type === 'success' ? 'bg-white text-black' : 'bg-black text-white'}`;
-    notification.textContent = message;
-    
-    document.body.appendChild(notification);
-    
-    // Remove after 3 seconds
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
 }
 
 // --- Utilities ---
@@ -293,3 +497,5 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+console.log('Script loaded successfully');
