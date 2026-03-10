@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DocFlex | PDF ⇄ DOCX Converter</title>
+    <title>DocxFlex by CosmoTools| PDF ⇄ DOCX Converter</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,6 +13,21 @@
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+    
+    <!-- PDF-Lib -->
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    
+    <!-- Mammoth.js for DOCX handling -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+    
+    <!-- FileSaver.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
+    <!-- JSZip for DOCX creation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
@@ -109,6 +124,10 @@
                     <input type="checkbox" id="extract-images" class="w-5 h-5 accent-black" checked>
                     <span class="font-mono">Extract images</span>
                 </label>
+                <label class="flex items-center gap-3">
+                    <input type="checkbox" id="extract-text" class="w-5 h-5 accent-black" checked>
+                    <span class="font-mono">Extract text with formatting</span>
+                </label>
             </div>
 
             <!-- DOCX to PDF Options -->
@@ -120,6 +139,10 @@
                 <label class="flex items-center gap-3">
                     <input type="checkbox" id="high-quality" class="w-5 h-5 accent-black" checked>
                     <span class="font-mono">High quality output</span>
+                </label>
+                <label class="flex items-center gap-3">
+                    <input type="checkbox" id="preserve-formatting" class="w-5 h-5 accent-black" checked>
+                    <span class="font-mono">Preserve formatting</span>
                 </label>
             </div>
         </div>
@@ -141,12 +164,25 @@
             <div class="border-2 border-white p-6 text-center">
                 <i class="fas fa-lock text-3xl mb-4"></i>
                 <h4 class="font-mono font-bold mb-2">Secure</h4>
-                <p class="text-sm opacity-70 font-mono">Files are deleted after conversion</p>
+                <p class="text-sm opacity-70 font-mono">Files are not saved anywhere :)</p>
             </div>
             <div class="border-2 border-white p-6 text-center">
                 <i class="fas fa-font text-3xl mb-4"></i>
-                <h4 class="font-mono font-bold mb-2">Font Preservation</h4>
-                <p class="text-sm opacity-70 font-mono">Maintains original formatting</p>
+                <h4 class="font-mono font-bold mb-2">Fully Anonymous</h4>
+                <p class="text-sm opacity-70 font-mono">No servers, no storage. Everything disappears when you close these tab</p>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div id="progress-container" class="hidden mt-8">
+            <div class="border-2 border-white p-4">
+                <div class="flex justify-between mb-2 font-mono text-sm">
+                    <span id="progress-status">Converting...</span>
+                    <span id="progress-percentage">0%</span>
+                </div>
+                <div class="h-4 border-2 border-white bg-black">
+                    <div id="progress-bar" class="h-full bg-white transition-all duration-300" style="width: 0%"></div>
+                </div>
             </div>
         </div>
 
@@ -159,40 +195,39 @@
             </div>
         </div>
     </main>
-
     <!-- Footer -->
     <footer class="border-t-2 border-white bg-black text-white mt-auto">
         <div class="max-w-6xl mx-auto px-4 py-12">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div>
-                    <h3 class="font-bold text-xl mb-4">DocFlex</h3>
-                    <p class="font-mono text-sm text-gray-400 mb-4">Open source document conversion tools for the modern web.</p>
+                    <h3 class="font-bold text-xl mb-4">CosmoTools</h3>
+                    <p class="font-mono text-sm text-gray-400 mb-4">Open source developer tools for the modern web.</p>
+                    <a href="https://bhuvanesh-m-dev.github.io/cosmotools" class="inline-flex items-center gap-2 font-bold hover:underline">
+                        Explore more tools <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
                 <div>
-                    <h4 class="font-bold font-mono uppercase mb-4">Tools</h4>
+                    <h4 class="font-bold font-mono uppercase mb-4">Project</h4>
                     <ul class="space-y-2 font-mono text-sm text-gray-400">
-                        <li><a href="#" class="hover:text-white transition-colors">PDF to DOCX</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">DOCX to PDF</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Merge PDF</a></li>
+                        <li><a href="https://bhuvanesh-m-dev.github.io/cosmotools/about/" class="hover:text-white transition-colors">About</a></li>
+                        <li><a href="https://bhuvanesh-m-dev.github.io/cosmotools/vision-and-roadmap/" class="hover:text-white transition-colors">Vision & Roadmap</a></li>
+                        <li><a href="https://bhuvanesh-m-dev.github.io/cosmotools/press-and-announcements/" class="hover:text-white transition-colors">Press & Announcements</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-bold font-mono uppercase mb-4">Legal</h4>
+                    <h4 class="font-bold font-mono uppercase mb-4">Community</h4>
                     <ul class="space-y-2 font-mono text-sm text-gray-400">
-                        <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+                        <li><a href="https://bhuvanesh-m-dev.github.io/cosmotools/contribute/" class="hover:text-white transition-colors">Contribute</a></li>
+                        <li><a href="https://bhuvanesh-m-dev.github.io/cosmotools/discussions/" class="hover:text-white transition-colors">Discussions</a></li>
                     </ul>
                 </div>
             </div>
             <div class="border-t border-gray-800 mt-12 pt-8 text-center font-mono text-xs text-gray-500">
-                <p>&copy; 2026 DocFlex. Open source under MIT License.</p>
+                <p>&copy; 2026 - Present CosmoTools. All rights reserved.</p>
             </div>
         </div>
     </footer>
-
     <!-- Application Logic -->
-    <script src="https://unpkg.com/@digitak/gsap/dist/gsap.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
