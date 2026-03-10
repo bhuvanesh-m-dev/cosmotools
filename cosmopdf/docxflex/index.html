@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocFlex | PDF ⇄ DOCX Converter</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bw-border-b sticky top-0 bg-black text-white z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 border-2 border-white flex items-center justify-center font-mono text-xl">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <h1 class="text-2xl font-bold tracking-tight">Doc<span class="font-light">Flex</span></h1>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <button id="theme-toggle" class="w-10 h-10 border-2 border-white text-white flex items-center justify-center bw-hover" title="Toggle Theme">
+                    <i class="fas fa-sun" id="theme-icon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-12 max-w-5xl relative">
+        
+        <!-- Grid Pattern Background -->
+        <div class="absolute inset-0 grid-pattern opacity-30 pointer-events-none"></div>
+        
+        <!-- Hero Section -->
+        <div class="text-center mb-12 relative">
+            <h2 class="text-5xl md:text-6xl font-bold tracking-tighter mb-4">PDF ⇄ DOCX</h2>
+            <p class="font-mono text-lg max-w-2xl mx-auto opacity-70">
+                Convert between PDF and Word documents. Free, fast, and secure.
+            </p>
+            <div class="w-24 h-1 bg-white mx-auto mt-6"></div>
+        </div>
+
+        <!-- Conversion Type Selector -->
+        <div class="flex justify-center mb-8">
+            <div class="inline-flex border-2 border-white">
+                <button id="pdf-to-docx-btn" class="conversion-type-btn px-8 py-4 font-mono font-bold text-lg bw-hover bg-white text-black" data-type="pdf-to-docx">
+                    PDF → DOCX
+                </button>
+                <button id="docx-to-pdf-btn" class="conversion-type-btn px-8 py-4 font-mono font-bold text-lg bw-hover" data-type="docx-to-pdf">
+                    DOCX → PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Upload Area -->
+        <div id="drop-zone" class="border-2 border-white p-16 text-center cursor-pointer bw-hover group mb-8">
+            <input type="file" id="file-input" class="hidden" accept=".pdf,.docx,.doc">
+            <div class="pointer-events-none">
+                <i class="fas fa-cloud-upload-alt text-6xl mb-6 group-hover:scale-110 transition-transform"></i>
+                <h3 class="text-2xl font-bold font-mono uppercase mb-2" id="upload-title">Drop PDF file here</h3>
+                <p class="text-sm font-mono opacity-70" id="upload-subtitle">or click to select file</p>
+                <div class="mt-6 text-xs font-mono opacity-50" id="file-format-hint">
+                    Supported: PDF, DOCX, DOC
+                </div>
+            </div>
+        </div>
+
+        <!-- File Info Panel -->
+        <div id="file-info" class="hidden border-2 border-white p-6 mb-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 border-2 border-white flex items-center justify-center text-2xl" id="file-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-lg truncate max-w-[300px] md:max-w-[500px]" id="file-name">document.pdf</p>
+                        <p class="font-mono text-sm opacity-70" id="file-size">2.5 MB</p>
+                    </div>
+                </div>
+                <button id="clear-file-btn" class="w-10 h-10 border-2 border-white flex items-center justify-center bw-hover">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Conversion Options -->
+        <div id="conversion-options" class="hidden border-2 border-white p-6 mb-8">
+            <h3 class="font-mono font-bold mb-4 text-lg">Conversion Options</h3>
+            
+            <!-- PDF to DOCX Options -->
+            <div id="pdf-to-docx-options">
+                <label class="flex items-center gap-3 mb-3">
+                    <input type="checkbox" id="preserve-layout" class="w-5 h-5 accent-black" checked>
+                    <span class="font-mono">Preserve original layout</span>
+                </label>
+                <label class="flex items-center gap-3">
+                    <input type="checkbox" id="extract-images" class="w-5 h-5 accent-black" checked>
+                    <span class="font-mono">Extract images</span>
+                </label>
+            </div>
+
+            <!-- DOCX to PDF Options -->
+            <div id="docx-to-pdf-options" class="hidden">
+                <label class="flex items-center gap-3 mb-3">
+                    <input type="checkbox" id="embed-fonts" class="w-5 h-5 accent-black" checked>
+                    <span class="font-mono">Embed fonts</span>
+                </label>
+                <label class="flex items-center gap-3">
+                    <input type="checkbox" id="high-quality" class="w-5 h-5 accent-black" checked>
+                    <span class="font-mono">High quality output</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Convert Button -->
+        <div class="text-center">
+            <button id="convert-btn" class="border-2 border-white px-16 py-5 font-mono font-bold text-2xl uppercase tracking-widest bw-hover-invert disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                <i class="fas fa-sync-alt mr-3"></i> Convert
+            </button>
+        </div>
+
+        <!-- Features Section -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20">
+            <div class="border-2 border-white p-6 text-center">
+                <i class="fas fa-bolt text-3xl mb-4"></i>
+                <h4 class="font-mono font-bold mb-2">Lightning Fast</h4>
+                <p class="text-sm opacity-70 font-mono">Convert documents in seconds</p>
+            </div>
+            <div class="border-2 border-white p-6 text-center">
+                <i class="fas fa-lock text-3xl mb-4"></i>
+                <h4 class="font-mono font-bold mb-2">Secure</h4>
+                <p class="text-sm opacity-70 font-mono">Files are deleted after conversion</p>
+            </div>
+            <div class="border-2 border-white p-6 text-center">
+                <i class="fas fa-font text-3xl mb-4"></i>
+                <h4 class="font-mono font-bold mb-2">Font Preservation</h4>
+                <p class="text-sm opacity-70 font-mono">Maintains original formatting</p>
+            </div>
+        </div>
+
+        <!-- Loading Modal -->
+        <div id="loading-modal" class="hidden fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
+            <div class="border-2 border-white p-12 text-center max-w-md w-full mx-4">
+                <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-6"></div>
+                <p class="font-mono text-xl mb-2" id="loading-status">Converting...</p>
+                <p class="font-mono text-sm opacity-70" id="loading-detail">Please wait</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t-2 border-white bg-black text-white mt-auto">
+        <div class="max-w-6xl mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="font-bold text-xl mb-4">DocFlex</h3>
+                    <p class="font-mono text-sm text-gray-400 mb-4">Open source document conversion tools for the modern web.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold font-mono uppercase mb-4">Tools</h4>
+                    <ul class="space-y-2 font-mono text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">PDF to DOCX</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">DOCX to PDF</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Merge PDF</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold font-mono uppercase mb-4">Legal</h4>
+                    <ul class="space-y-2 font-mono text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center font-mono text-xs text-gray-500">
+                <p>&copy; 2026 DocFlex. Open source under MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Application Logic -->
+    <script src="https://unpkg.com/@digitak/gsap/dist/gsap.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
