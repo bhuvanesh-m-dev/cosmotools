@@ -1,0 +1,116 @@
+:root {
+    --bg-color: #0a0a0a;
+    --text-color: #ffffff;
+    --accent-color: #3b82f6;
+    --border-color: #333333;
+    --card-bg: #171717;
+}
+
+body.light-theme {
+    --bg-color: #f3f4f6;
+    --text-color: #111827;
+    --accent-color: #2563eb;
+    --border-color: #d1d5db;
+    --card-bg: #ffffff;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.font-mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+}
+
+.drop-zone {
+    border: 2px dashed var(--border-color);
+    transition: all 0.3s ease;
+}
+.drop-zone.drag-over {
+    border-color: var(--accent-color);
+    background-color: rgba(59, 130, 246, 0.1);
+    transform: scale(1.01);
+}
+
+.btn-brutalist {
+    border: 2px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-color);
+    transition: all 0.2s;
+    box-shadow: 4px 4px 0px 0px var(--border-color);
+}
+.btn-brutalist:hover:not(:disabled) {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px 0px var(--accent-color);
+    border-color: var(--accent-color);
+}
+.btn-brutalist:active:not(:disabled) {
+    transform: translate(0px, 0px);
+    box-shadow: 0px 0px 0px 0px var(--accent-color);
+}
+.btn-brutalist:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.page-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+}
+.page-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border-color: var(--accent-color);
+}
+.page-card.dragging {
+    opacity: 0.5;
+    border: 2px dashed var(--accent-color);
+}
+.page-card.selected {
+    border-color: #10b981;
+    box-shadow: 0 0 0 2px #10b981;
+}
+
+/* Loader */
+.loader {
+    border: 4px solid var(--border-color);
+    border-top: 4px solid var(--accent-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Theme Toggle Animation */
+.theme-icon {
+    transition: transform 0.5s;
+}
+body.light-theme .theme-icon {
+    transform: rotate(360deg);
+}
