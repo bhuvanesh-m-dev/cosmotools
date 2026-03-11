@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CosmoTools Calculator — Coming Soon</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+
+/* Pure Black & White Configuration */
+:root {
+    --bg-color: #000000;
+    --text-color: #ffffff;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Space Grotesk', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+}
+
+.font-mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.bw-border {
+    border: 2px solid var(--text-color);
+}
+
+.bw-border-b {
+    border-bottom: 2px solid var(--text-color);
+}
+
+.bw-hover {
+    transition: all 0.2s ease;
+}
+
+.bw-hover:hover {
+    background-color: var(--text-color);
+    color: var(--bg-color);
+}
+
+.grid-pattern {
+    background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    padding: 2rem;
+}
+
+.center {
+    text-align: center;
+}
+
+.hero {
+    padding: 120px 20px;
+}
+
+.button {
+    display: inline-block;
+    padding: 14px 28px;
+    margin-top: 30px;
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+footer {
+    margin-top: 80px;
+    padding: 20px;
+    text-align: center;
+    font-size: 14px;
+}
+
+</style>
+</head>
+
+<body class="grid-pattern">
+
+<header class="bw-border-b">
+<div class="container font-mono">
+CosmoTools
+</div>
+</header>
+
+<section class="hero center">
+
+<div class="container">
+
+<h1 style="font-size:48px;">Calculator</h1>
+
+<p class="font-mono" style="margin-top:10px;">
+Coming Soon
+</p>
+
+<p style="max-width:500px;margin:auto;margin-top:25px;">
+The CosmoTools Calculator is currently under development.
+This tool will provide fast browser-based calculations with
+a clean interface and no backend processing.
+</p>
+
+<a href="https://bhuvanesh-m-dev.github.io/cosmotools" class="button bw-border bw-hover font-mono">
+Return to CosmoTools
+</a>
+
+</div>
+
+</section>
+
+<footer class="bw-border-b font-mono">
+Built with CosmoTools • Stateless SaaS Utilities
+</footer>
+
+</body>
+</html>
