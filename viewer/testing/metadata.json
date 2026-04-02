@@ -1,0 +1,8 @@
+{
+  "name": "Viewer by CosmoTools",
+  "description": "A stateless HTML/CSS/JS code previewer with ZIP export and sharing capabilities.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
