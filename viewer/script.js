@@ -151,28 +151,6 @@ function loadFromURL() {
     
     // Check if this is a preview-only mode
     if (params.has('preview') && params.get('preview') === 'true') {
-        // Hide editors and show preview only
-        document.querySelector('.editors-container').style.display = 'none';
-        document.querySelector('.controls').style.display = 'none';
-        document.querySelector('.qr-section').style.display = 'none';
-        
-        // Create preview container
-        const previewContainer = document.createElement('div');
-        previewContainer.className = 'preview-mode-container glass-card';
-        previewContainer.innerHTML = `
-            <div class="preview-header">
-                <h2>Shared Preview</h2>
-                <button onclick="window.location.href = window.location.pathname" class="btn btn-3d btn-secondary">
-                    <div class="btn-face">
-                        <span>Open Editor</span>
-                    </div>
-                </button>
-            </div>
-            <iframe id="previewFrame" style="width: 100%; height: 600px; border: none; border-radius: 12px; background: white;"></iframe>
-        `;
-        document.querySelector('.container').insertBefore(previewContainer, document.querySelector('.qr-section'));
-        
-        // Build and inject preview
         const html = decodeURIComponent(params.get('html') || '');
         const css = decodeURIComponent(params.get('css') || '');
         const js = decodeURIComponent(params.get('js') || '');
@@ -190,8 +168,9 @@ function loadFromURL() {
 </body>
 </html>`;
         
-        const blob = new Blob([fullHTML], { type: 'text/html' });
-        document.getElementById('previewFrame').src = URL.createObjectURL(blob);
+        document.open();
+        document.write(fullHTML);
+        document.close();
         
         return;
     }
