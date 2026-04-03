@@ -10,19 +10,18 @@
     <script src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
 </head>
 <body>
-    <!-- 3D Depth Layers -->
-    <div class="depth-layer layer-1"></div>
-    <div class="depth-layer layer-2"></div>
-    <div class="depth-layer layer-3"></div>
-    
-    <!-- Floating Orbs -->
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
+    <!-- Space Background -->
+    <div class="space-background">
+        <div class="stars-layer layer-1"></div>
+        <div class="stars-layer layer-2"></div>
+        <div class="stars-layer layer-3"></div>
+        <div class="nebula"></div>
+        <div class="shooting-stars"></div>
+    </div>
 
     <div class="container">
         <!-- Header -->
-        <header class="glass-card" data-tilt>
+        <header class="glass-card">
             <div class="logo-section">
                 <div class="logo-3d">
                     <div class="logo-face front">C</div>
@@ -46,7 +45,7 @@
         </header>
 
         <!-- Controls -->
-        <div class="controls glass-card" data-tilt>
+        <div class="controls glass-card">
             <div class="btn-group main-actions">
                 <button onclick="launchPreview()" class="btn btn-3d btn-primary">
                     <div class="btn-face">
@@ -110,7 +109,7 @@
         <!-- Editors -->
         <div class="editors-container">
             <!-- HTML Editor -->
-            <div class="editor-wrapper" data-tilt>
+            <div class="editor-wrapper">
                 <div class="editor-card">
                     <div class="editor-header">
                         <div class="lang-badge">
@@ -128,7 +127,7 @@
             </div>
 
             <!-- CSS Editor -->
-            <div class="editor-wrapper" data-tilt>
+            <div class="editor-wrapper">
                 <div class="editor-card">
                     <div class="editor-header">
                         <div class="lang-badge">
@@ -146,7 +145,7 @@
             </div>
 
             <!-- JS Editor -->
-            <div class="editor-wrapper" data-tilt>
+            <div class="editor-wrapper">
                 <div class="editor-card">
                     <div class="editor-header">
                         <div class="lang-badge">
@@ -165,7 +164,7 @@
         </div>
 
         <!-- QR Code Section -->
-        <div class="qr-section glass-card" data-tilt>
+        <div class="qr-section glass-card">
             <div class="qr-header">
                 <div class="qr-title">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
