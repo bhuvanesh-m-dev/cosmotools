@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viewer by CosmoTools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        textarea {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+    <div class="max-w-7xl mx-auto p-6">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-4xl font-bold text-white">Viewer by <span class="text-blue-400">CosmoTools</span></h1>
+                <p class="text-gray-400 mt-1">Simple HTML • CSS • JavaScript Previewer</p>
+            </div>
+            <a href="../index.html" 
+               class="text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-2">
+                ← Back to CosmoTools
+            </a>
+        </div>
+
+        <!-- Controls -->
+        <div class="flex flex-wrap gap-3 mb-6">
+            <button onclick="launchPreview()" 
+                    class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors">
+                <span>🚀 Launch Preview</span>
+            </button>
+            
+            <button onclick="saveAsZip()" 
+                    class="bg-emerald-600 hover:bg-emerald-700 px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors">
+                💾 Save as ZIP
+            </button>
+            
+            <button onclick="shareCode()" 
+                    class="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors">
+                🔗 Share
+            </button>
+            
+            <button onclick="clearAll()" 
+                    class="bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg font-medium transition-colors">
+                Clear All
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- HTML -->
+            <div class="flex flex-col">
+                <label class="text-sm font-medium text-gray-400 mb-2 flex items-center gap-2">
+                    <span class="text-orange-400">●</span> HTML Code
+                </label>
+                <textarea id="htmlCode" rows="20"
+                    class="w-full bg-gray-900 border border-gray-700 rounded-xl p-4 resize-y focus:outline-none focus:border-blue-500 font-mono"
+                    placeholder="Paste your HTML code here..."></textarea>
+            </div>
+
+            <!-- CSS -->
+            <div class="flex flex-col">
+                <label class="text-sm font-medium text-gray-400 mb-2 flex items-center gap-2">
+                    <span class="text-blue-400">●</span> CSS Code
+                </label>
+                <textarea id="cssCode" rows="20"
+                    class="w-full bg-gray-900 border border-gray-700 rounded-xl p-4 resize-y focus:outline-none focus:border-blue-500 font-mono"
+                    placeholder="Paste your CSS code here..."></textarea>
+            </div>
+
+            <!-- JavaScript -->
+            <div class="flex flex-col">
+                <label class="text-sm font-medium text-gray-400 mb-2 flex items-center gap-2">
+                    <span class="text-yellow-400">●</span> JavaScript Code
+                </label>
+                <textarea id="jsCode" rows="20"
+                    class="w-full bg-gray-900 border border-gray-700 rounded-xl p-4 resize-y focus:outline-none focus:border-blue-500 font-mono"
+                    placeholder="Paste your JavaScript code here..."></textarea>
+            </div>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="mt-10 text-center text-gray-500 text-sm">
+            Viewer by CosmoTools • Fully client-side &amp; stateless • 
+            <a href="https://github.com/bhuvanesh-m-dev/cosmotools" 
+               target="_blank" class="hover:text-gray-300">GitHub</a>
+        </div>
+    </div>
+
+    <script>
+        // Load code from URL parameters on page load (for Share feature)
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.has('html')) document.getElementById('htmlCode').value = decodeURIComponent(params.get('html') || '');
+            if (params.has('css'))  document.getElementById('cssCode').value  = decodeURIComponent(params.get('css') || '');
+            if (params.has('js'))   document.getElementById('jsCode').value   = decodeURIComponent(params.get('js') || '');
+        };
+
+        function launchPreview() {
+            const html = document.getElementById('htmlCode').value.trim();
+            const css  = document.getElementById('cssCode').value.trim();
+            const js   = document.getElementById('jsCode').value.trim();
+
+            if (!html && !css && !js) {
+                alert("Please enter some code before launching the preview.");
+                return;
+            }
+
+            const fullHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview - CosmoTools</title>
+    <style>${css}</style>
+</head>
+<body>
+    ${html}
+    <script>${js}<\/script>
+</body>
+</html>`;
+
+            const blob = new Blob([fullHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        }
+
+        async function saveAsZip() {
+            const html = document.getElementById('htmlCode').value || '';
+            const css  = document.getElementById('cssCode').value  || '';
+            const js   = document.getElementById('jsCode').value   || '';
+
+            if (!html && !css && !js) {
+                alert("Nothing to save. Please add some code.");
+                return;
+            }
+
+            const zip = new JSZip();
+            
+            zip.file("index.html", html || "<!-- Empty HTML -->");
+            zip.file("style.css",  css  || "/* Empty CSS */");
+            zip.file("script.js",  js   || "// Empty JavaScript");
+
+            // Project branding files
+            zip.file("README.md", `# My Web Project\n\nCreated with **Viewer by CosmoTools**\n\nhttps://bhuvanesh-m-dev.github.io/cosmotools/`);
+            zip.file("cosmotools-info.txt", `Generated using Viewer by CosmoTools\nDate: ${new Date().toISOString()}\nRepository: https://github.com/bhuvanesh-m-dev/cosmotools`);
+
+            const content = await zip.generateAsync({ type: "blob" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(content);
+            link.download = "my-web-project.zip";
+            link.click();
+        }
+
+        function shareCode() {
+            const html = encodeURIComponent(document.getElementById('htmlCode').value || '');
+            const css  = encodeURIComponent(document.getElementById('cssCode').value || '');
+            const js   = encodeURIComponent(document.getElementById('jsCode').value || '');
+
+            const shareURL = `${window.location.origin}${window.location.pathname}?html=${html}&css=${css}&js=${js}`;
+
+            navigator.clipboard.writeText(shareURL).then(() => {
+                alert("Share link copied to clipboard!\n\nAnyone with this link can open the same code in Viewer by CosmoTools.");
+            }).catch(() => {
+                prompt("Copy this share link:", shareURL);
+            });
+        }
+
+        function clearAll() {
+            if (confirm("Clear all code fields?")) {
+                document.getElementById('htmlCode').value = '';
+                document.getElementById('cssCode').value = '';
+                document.getElementById('jsCode').value = '';
+            }
+        }
+    </script>
+</body>
+</html>
