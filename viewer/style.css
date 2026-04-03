@@ -880,24 +880,6 @@ footer {
     background: rgba(255,255,255,0.2);
 }
 
-/* Preview Mode Container */
-.preview-mode-container {
-    padding: 2rem;
-    margin-bottom: 2rem;
-}
-
-.preview-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-}
-
-.preview-header h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-
 /* Responsive */
 @media (max-width: 1024px) {
     .controls {
