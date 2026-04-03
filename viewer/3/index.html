@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Viewer by CosmoTools - Shareable code previewer with unique URLs">
+    <title>Viewer by CosmoTools</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- JSZip for ZIP generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    
+    <!-- LZ-String for URL compression -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        cosmogreen: {
+                            50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0',
+                            300: '#86efac', 400: '#4ade80', 500: '#22c55e',
+                            600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .code-editor {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            tab-size: 2;
+        }
+        
+        * { transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        .toast { animation: slideIn 0.3s ease-out; }
+        .toast.hiding { animation: fadeOut 0.3s ease-out; }
+        
+        .code-editor:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3);
+        }
+        
+        /* URL Display Box */
+        .url-box {
+            word-break: break-all;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-300">
+    
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-cosmogreen-400 to-cosmogreen-600 rounded-lg flex items-center justify-center shadow-lg">
+                        <i class="fas fa-eye text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold bg-gradient-to-r from-cosmogreen-600 to-cosmogreen-400 bg-clip-text text-transparent">
+                            Viewer
+                        </h1>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">by CosmoTools</p>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <button id="themeToggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" title="Toggle Theme">
+                        <i class="fas fa-moon dark:hidden text-gray-600"></i>
+                        <i class="fas fa-sun hidden dark:block text-yellow-400"></i>
+                    </button>
+                    
+                    <button onclick="launchPreview()" class="hidden sm:flex items-center space-x-2 px-4 py-2 bg-cosmogreen-500 hover:bg-cosmogreen-600 text-white rounded-lg font-medium transition-all transform hover:scale-105 shadow-md hover:shadow-lg">
+                        <i class="fas fa-play text-sm"></i>
+                        <span>Launch Preview</span>
+                    </button>
+                    
+                    <button onclick="saveAsZip()" class="hidden sm:flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-all transform hover:scale-105 shadow-md hover:shadow-lg">
+                        <i class="fas fa-file-zipper text-sm"></i>
+                        <span>Save as ZIP</span>
+                    </button>
+                    
+                    <button onclick="openShareModal()" class="hidden sm:flex items-center space-x-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium transition-all transform hover:scale-105 shadow-md hover:shadow-lg">
+                        <i class="fas fa-share-nodes text-sm"></i>
+                        <span>Share URL</span>
+                    </button>
+                    
+                    <button onclick="clearAll()" class="hidden sm:flex items-center space-x-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-all transform hover:scale-105 shadow-md hover:shadow-lg">
+                        <i class="fas fa-trash-can text-sm"></i>
+                        <span>Clear</span>
+                    </button>
+                    
+                    <button id="mobileMenuBtn" class="sm:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="fas fa-bars text-gray-600 dark:text-gray-300"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="hidden sm:hidden pb-4 space-y-2">
+                <button onclick="launchPreview()" class="w-full flex items-center space-x-2 px-4 py-2 bg-cosmogreen-500 hover:bg-cosmogreen-600 text-white rounded-lg font-medium">
+                    <i class="fas fa-play"></i>
+                    <span>Launch Preview</span>
+                </button>
+                <button onclick="saveAsZip()" class="w-full flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium">
+                    <i class="fas fa-file-zipper"></i>
+                    <span>Save as ZIP</span>
+                </button>
+                <button onclick="openShareModal()" class="w-full flex items-center space-x-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium">
+                    <i class="fas fa-share-nodes"></i>
+                    <span>Share URL</span>
+                </button>
+                <button onclick="clearAll()" class="w-full flex items-center space-x-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium">
+                    <i class="fas fa-trash-can"></i>
+                    <span>Clear All</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
+        
+        <!-- URL Indicator (shown when viewing shared code) -->
+        <div id="urlIndicator" class="hidden mb-4 p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg flex items-center justify-between">
+            <div class="flex items-center space-x-2 text-sm text-purple-700 dark:text-purple-300">
+                <i class="fas fa-link"></i>
+                <span>Viewing shared code via unique URL</span>
+            </div>
+            <button onclick="createNew()" class="text-xs px-3 py-1 bg-purple-100 dark:bg-purple-800 hover:bg-purple-200 dark:hover:bg-purple-700 rounded-full transition-colors">
+                Create New
+            </button>
+        </div>
+
+        <!-- Editors Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-240px)] min-h-[400px]">
+            
+            <!-- HTML Editor -->
+            <div class="flex flex-col bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="flex items-center justify-between px-4 py-3 bg-orange-50 dark:bg-orange-900/20 border-b border-orange-100 dark:border-orange-800">
+                    <div class="flex items-center space-x-2">
+                        <i class="fab fa-html5 text-orange-500 text-lg"></i>
+                        <span class="font-semibold text-orange-700 dark:text-orange-300">HTML</span>
+                    </div>
+                    <div class="flex space-x-1">
+                        <button onclick="formatCode('html')" class="p-1.5 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-800 rounded" title="Format">
+                            <i class="fas fa-magic text-xs"></i>
+                        </button>
+                        <button onclick="copyCode('html')" class="p-1.5 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-800 rounded" title="Copy">
+                            <i class="fas fa-copy text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+                <textarea id="htmlCode" class="code-editor flex-1 w-full p-4 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 resize-none border-none focus:ring-0" placeholder="<!-- Enter HTML code here -->" spellcheck="false"></textarea>
+            </div>
+
+            <!-- CSS Editor -->
+            <div class="flex flex-col bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="flex items-center justify-between px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-100 dark:border-blue-800">
+                    <div class="flex items-center space-x-2">
+                        <i class="fab fa-css3-alt text-blue-500 text-lg"></i>
+                        <span class="font-semibold text-blue-700 dark:text-blue-300">CSS</span>
+                    </div>
+                    <div class="flex space-x-1">
+                        <button onclick="formatCode('css')" class="p-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800 rounded" title="Format">
+                            <i class="fas fa-magic text-xs"></i>
+                        </button>
+                        <button onclick="copyCode('css')" class="p-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800 rounded" title="Copy">
+                            <i class="fas fa-copy text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+                <textarea id="cssCode" class="code-editor flex-1 w-full p-4 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 resize-none border-none focus:ring-0" placeholder="/* Enter CSS code here */" spellcheck="false"></textarea>
+            </div>
+
+            <!-- JavaScript Editor -->
+            <div class="flex flex-col bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="flex items-center justify-between px-4 py-3 bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-100 dark:border-yellow-800">
+                    <div class="flex items-center space-x-2">
+                        <i class="fab fa-js text-yellow-500 text-lg"></i>
+                        <span class="font-semibold text-yellow-700 dark:text-yellow-300">JavaScript</span>
+                    </div>
+                    <div class="flex space-x-1">
+                        <button onclick="formatCode('js')" class="p-1.5 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-100 dark:hover:bg-yellow-800 rounded" title="Format">
+                            <i class="fas fa-magic text-xs"></i>
+                        </button>
+                        <button onclick="copyCode('js')" class="p-1.5 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-100 dark:hover:bg-yellow-800 rounded" title="Copy">
+                            <i class="fas fa-copy text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+                <textarea id="jsCode" class="code-editor flex-1 w-full p-4 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 resize-none border-none focus:ring-0" placeholder="// Enter JavaScript code here" spellcheck="false"></textarea>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="mt-4 flex flex-wrap items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+            <div class="flex space-x-4">
+                <span id="htmlStats">HTML: 0 chars</span>
+                <span id="cssStats">CSS: 0 chars</span>
+                <span id="jsStats">JS: 0 chars</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span>Auto-saved locally</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
+                <div class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                    <span>© 2026 Viewer by</span>
+                    <a href="https://github.com/bhuvanesh-m-dev/cosmotools" target="_blank" class="font-semibold text-cosmogreen-600 dark:text-cosmogreen-400 hover:underline flex items-center space-x-1">
+                        <i class="fab fa-github"></i>
+                        <span>CosmoTools</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4 text-sm">
+                    <span class="text-gray-500 dark:text-gray-500">Unique URL Sharing Enabled</span>
+                    <span class="text-gray-300 dark:text-gray-600">|</span>
+                    <span class="text-gray-500 dark:text-gray-500">v2.0.0</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Share Modal -->
+    <div id="shareModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full transform transition-all scale-100">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
+                    <i class="fas fa-share-nodes text-purple-500"></i>
+                    <span>Share Your Code</span>
+                </h3>
+                <button onclick="closeShareModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <p class="text-gray-600 dark:text-gray-300 text-sm">
+                    Generate a unique, shareable URL for your code. Anyone with this link can view and edit a copy of your work.
+                </p>
+                
+                <!-- URL Display -->
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Shareable URL:</label>
+                    <div class="flex space-x-2">
+                        <div id="shareUrl" class="url-box flex-1 p-3 bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 select-all">
+                            Generating...
+                        </div>
+                        <button onclick="copyShareUrl()" class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium transition-colors flex items-center space-x-2">
+                            <i class="fas fa-copy"></i>
+                            <span class="hidden sm:inline">Copy</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- QR Code Option -->
+                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-qrcode text-gray-600 dark:text-gray-400"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900 dark:text-white">QR Code</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Scan to open on mobile</p>
+                        </div>
+                    </div>
+                    <button onclick="generateQR()" class="text-sm text-purple-600 dark:text-purple-400 hover:underline">
+                        Generate
+                    </button>
+                </div>
+                
+                <!-- Stats -->
+                <div class="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400 pt-2">
+                    <span id="urlLength">URL Length: --</span>
+                    <span>•</span>
+                    <span>Compression: LZ-String</span>
+                </div>
+            </div>
+            
+            <div class="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-b-2xl flex justify-end space-x-3">
+                <button onclick="closeShareModal()" class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg font-medium transition-colors">
+                    Close
+                </button>
+                <button onclick="openInNewTab()" class="px-4 py-2 bg-cosmogreen-500 hover:bg-cosmogreen-600 text-white rounded-lg font-medium transition-colors flex items-center space-x-2">
+                    <i class="fas fa-external-link-alt"></i>
+                    <span>Open in New Tab</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col space-y-2"></div>
+
+    <script>
+        // ==================== STATE MANAGEMENT ====================
+        const STORAGE_KEY = 'cosmotools-viewer-code';
+        const editors = {
+            html: document.getElementById('htmlCode'),
+            css: document.getElementById('cssCode'),
+            js: document.getElementById('jsCode')
+        };
+        let currentShareUrl = '';
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            
+            // Priority: URL hash > LocalStorage > Empty
+            if (!loadFromURL()) {
+                loadFromStorage();
+            }
+            
+            setupEventListeners();
+            updateStats();
+        });
+
+        function setupEventListeners() {
+            Object.values(editors).forEach(editor => {
+                editor.addEventListener('input', () => {
+                    saveToStorage();
+                    updateStats();
+                    // Clear URL indicator when user edits shared code
+                    if (window.location.hash) {
+                        document.getElementById('urlIndicator').classList.add('hidden');
+                    }
+                });
+            });
+
+            document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+                document.getElementById('mobileMenu').classList.toggle('hidden');
+            });
+
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
+            Object.values(editors).forEach(editor => {
+                editor.addEventListener('keydown', handleTabKey);
+            });
+
+            // Handle browser back/forward buttons
+            window.addEventListener('hashchange', () => {
+                loadFromURL();
+            });
+        }
+
+        // ==================== COMPRESSION & ENCODING ====================
+        
+        /**
+         * Compress and encode code for URL using LZ-String
+         * This reduces URL length significantly compared to raw Base64
+         */
+        function encodeForURL(code) {
+            if (!code || code.trim() === '') return '';
+            try {
+                // Use URI-safe Base64 encoding
+                return LZString.compressToEncodedURIComponent(code);
+            } catch (e) {
+                console.error('Encoding error:', e);
+                return '';
+            }
+        }
+
+        function decodeFromURL(encoded) {
+            if (!encoded) return '';
+            try {
+                return LZString.decompressFromEncodedURIComponent(encoded);
+            } catch (e) {
+                console.error('Decoding error:', e);
+                return '';
+            }
+        }
+
+        // ==================== URL HANDLING ====================
+        
+        /**
+         * Generate shareable URL with compressed code
+         */
+        function generateShareableURL() {
+            const html = encodeForURL(editors.html.value);
+            const css = encodeForURL(editors.css.value);
+            const js = encodeForURL(editors.js.value);
+
+            const params = new URLSearchParams();
+            if (html) params.set('h', html);
+            if (css) params.set('c', css);
+            if (js) params.set('j', js);
+
+            // Use hash to avoid sending to server (GitHub Pages compatible)
+            const hash = params.toString();
+            const baseUrl = window.location.origin + window.location.pathname;
+            
+            return baseUrl + '#' + hash;
+        }
+
+        /**
+         * Load code from URL hash if present
+         */
+        function loadFromURL() {
+            const hash = window.location.hash.slice(1);
+            if (!hash) {
+                document.getElementById('urlIndicator').classList.add('hidden');
+                return false;
+            }
+
+            try {
+                const params = new URLSearchParams(hash);
+                const html = decodeFromURL(params.get('h') || '');
+                const css = decodeFromURL(params.get('c') || '');
+                const js = decodeFromURL(params.get('j') || '');
+
+                if (html !== '' || css !== '' || js !== '') {
+                    editors.html.value = html;
+                    editors.css.value = css;
+                    editors.js.value = js;
+                    
+                    saveToStorage();
+                    updateStats();
+                    
+                    // Show URL indicator
+                    document.getElementById('urlIndicator').classList.remove('hidden');
+                    
+                    showToast('Loaded code from shared URL!', 'success');
+                    return true;
+                }
+            } catch (e) {
+                console.error('Error parsing URL:', e);
+                showToast('Invalid share link!', 'error');
+            }
+            
+            document.getElementById('urlIndicator').classList.add('hidden');
+            return false;
+        }
+
+        /**
+         * Create new blank project (clear URL)
+         */
+        function createNew() {
+            if (confirm('Create new project? Current code will be cleared.')) {
+                window.history.pushState(null, null, window.location.pathname);
+                clearAll(false);
+                document.getElementById('urlIndicator').classList.add('hidden');
+            }
+        }
+
+        // ==================== UI FUNCTIONS ====================
+        
+        function openShareModal() {
+            currentShareUrl = generateShareableURL();
+            const urlDisplay = document.getElementById('shareUrl');
+            urlDisplay.textContent = currentShareUrl;
+            
+            // Update stats
+            document.getElementById('urlLength').textContent = `URL Length: ${currentShareUrl.length} chars`;
+            
+            document.getElementById('shareModal').classList.remove('hidden');
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.add('hidden');
+        }
+
+        function copyShareUrl() {
+            navigator.clipboard.writeText(currentShareUrl).then(() => {
+                showToast('Share URL copied to clipboard!', 'success');
+            }).catch(() => {
+                // Fallback
+                const textArea = document.createElement('textarea');
+                textArea.value = currentShareUrl;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('Share URL copied!', 'success');
+            });
+        }
+
+        function openInNewTab() {
+            window.open(currentShareUrl, '_blank');
+        }
+
+        function generateQR() {
+            // Using QR Server API (free, no key required for basic usage)
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(currentShareUrl)}`;
+            window.open(qrUrl, '_blank');
+        }
+
+        // ==================== CORE FEATURES ====================
+        
+        function launchPreview() {
+            const html = editors.html.value;
+            const css = editors.css.value;
+            const js = editors.js.value;
+
+            const fullHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview - Viewer by CosmoTools</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        ${css}
+    </style>
+</head>
+<body>
+    ${html}
+    <script>
+        window.onerror = function(msg, url, line) {
+            console.error('Error: ' + msg + '\\nLine: ' + line);
+        };
+        try {
+            ${js}
+        } catch (e) {
+            console.error('JavaScript Error:', e);
+        }
+    <\/script>
+</body>
+</html>`;
+
+            const blob = new Blob([fullHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const newWindow = window.open(url, '_blank');
+            
+            if (!newWindow) {
+                showToast('Popup blocked! Please allow popups.', 'error');
+                URL.revokeObjectURL(url);
+            } else {
+                showToast('Preview launched!', 'success');
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+            }
+        }
+
+        async function saveAsZip() {
+            const html = editors.html.value;
+            const css = editors.css.value;
+            const js = editors.js.value;
+            const projectName = prompt('Enter project name:', 'my-web-project') || 'my-web-project';
+
+            try {
+                const zip = new JSZip();
+                
+                zip.file('index.html', `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${projectName}</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    ${html}
+    <script src="script.js"><\/script>
+</body>
+</html>`);
+                
+                zip.file('style.css', `/* ${projectName} Styles */\n${css}`);
+                zip.file('script.js', `// ${projectName} Scripts\n${js}`);
+                
+                zip.file('README.md', `# ${projectName}\n\nCreated with [Viewer by CosmoTools](https://github.com/bhuvanesh-m-dev/cosmotools)\n\n## Files\n- \\`index.html\\` - Main HTML file\n- \\`style.css\\` - Stylesheet\n- \\`script.js\\` - JavaScript file\n\n## Share URL\n${generateShareableURL()}\n\n---\n*Generated by Viewer by CosmoTools*`);
+                
+                zip.file('cosmotools-info.txt', `Project: ${projectName}\nCreated with: Viewer by CosmoTools\nShare URL: ${generateShareableURL()}\nDate: ${new Date().toISOString()}\nRepository: https://github.com/bhuvanesh-m-dev/cosmotools`);
+
+                const content = await zip.generateAsync({ type: 'blob' });
+                const url = URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${projectName}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showToast(`Downloaded ${projectName}.zip!`, 'success');
+            } catch (error) {
+                showToast('Error creating ZIP!', 'error');
+            }
+        }
+
+        function clearAll(confirmDialog = true) {
+            if (confirmDialog && !confirm('Clear all code? This cannot be undone.')) return;
+            
+            editors.html.value = '';
+            editors.css.value = '';
+            editors.js.value = '';
+            saveToStorage();
+            updateStats();
+            showToast('All code cleared!', 'info');
+        }
+
+        // ==================== STORAGE ====================
+        
+        function saveToStorage() {
+            const data = {
+                html: editors.html.value,
+                css: editors.css.value,
+                js: editors.js.value,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function loadFromStorage() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    editors.html.value = data.html || '';
+                    editors.css.value = data.css || '';
+                    editors.js.value = data.js || '';
+                }
+            } catch (e) {
+                console.error('Storage error:', e);
+            }
+        }
+
+        // ==================== UTILITIES ====================
+        
+        function copyCode(type) {
+            navigator.clipboard.writeText(editors[type].value).then(() => {
+                showToast(`${type.toUpperCase()} copied!`, 'success');
+            });
+        }
+
+        function formatCode(type) {
+            const editor = editors[type];
+            const lines = editor.value.split('\n');
+            let formatted = [];
+            let indent = 0;
+            
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (!trimmed) {
+                    formatted.push('');
+                    return;
+                }
+                
+                if (trimmed.startsWith('</') || trimmed.startsWith('}') || trimmed.startsWith(']')) {
+                    indent = Math.max(0, indent - 1);
+                }
+                
+                formatted.push('  '.repeat(indent) + trimmed);
+                
+                if ((trimmed.includes('<') && !trimmed.includes('</') && !trimmed.endsWith('/>')) ||
+                    (trimmed.endsWith('{') || trimmed.endsWith('[') || trimmed.endsWith('('))) {
+                    indent++;
+                }
+            });
+            
+            editor.value = formatted.join('\n');
+            saveToStorage();
+            showToast(`${type.toUpperCase()} formatted!`, 'success');
+        }
+
+        function updateStats() {
+            document.getElementById('htmlStats').textContent = `HTML: ${editors.html.value.length} chars`;
+            document.getElementById('cssStats').textContent = `CSS: ${editors.css.value.length} chars`;
+            document.getElementById('jsStats').textContent = `JS: ${editors.js.value.length} chars`;
+        }
+
+        function handleTabKey(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + '  ' + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 2;
+            }
+        }
+
+        // ==================== THEME ====================
+        
+        function initTheme() {
+            const saved = localStorage.getItem('cosmotools-theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (saved === 'dark' || (!saved && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('cosmotools-theme', isDark ? 'dark' : 'light');
+            showToast(isDark ? 'Dark mode enabled' : 'Light mode enabled', 'info');
+        }
+
+        // ==================== TOAST ====================
+        
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500',
+                warning: 'bg-yellow-500'
+            };
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                info: 'fa-info-circle',
+                warning: 'fa-exclamation-triangle'
+            };
+            
+            toast.className = `toast flex items-center space-x-3 px-4 py-3 ${colors[type]} text-white rounded-lg shadow-lg min-w-[300px]`;
+            toast.innerHTML = `<i class="fas ${icons[type]}"></i><span class="font-medium">${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('hiding');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Close modal on outside click
+        document.getElementById('shareModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('shareModal')) {
+                closeShareModal();
+            }
+        });
+    </script>
+</body>
+</html>
