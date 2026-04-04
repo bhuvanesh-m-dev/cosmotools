@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PyFlow — Online Python Compiler</title>
+  <title>Py-Run — Online Python Compiler</title>
   <meta name="description" content="A beautiful, open-source online Python compiler powered by Pyodide. No backend required."/>
 
   <!-- Fonts -->
@@ -23,6 +23,7 @@
 
   <!-- Main CSS -->
   <link rel="stylesheet" href="style.css"/>
+<base target="_blank">
 </head>
 <body>
 
@@ -31,7 +32,7 @@
     <div class="header-left">
       <div class="logo">
         <span class="logo-icon">⬡</span>
-        <span class="logo-text">PyFlow</span>
+        <span class="logo-text">Py-Run</span>
       </div>
       <span class="tagline">Online Python Compiler</span>
     </div>
@@ -40,16 +41,20 @@
       <div class="status-bar">
         <span id="pyodide-status" class="status loading">
           <span class="status-dot"></span>
-          Initialising Pyodide…
+          <span id="status-text">Initialising Pyodide…</span>
+          <span id="loading-timer" style="margin-left: 6px; font-family: monospace;"></span>
         </span>
       </div>
     </div>
 
     <div class="header-right">
-      <button class="btn-icon" id="btn-share" title="Share Code">
+      <button class="btn-icon" id="btn-share-code" title="Share as Code">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
       </button>
-      <a class="btn-icon" href="https://github.com/" target="_blank" title="Open Source on GitHub">
+      <button class="btn-icon" id="btn-share-run" title="Share as Run (Execute in new tab)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+      <a class="btn-icon" href="https://github.com/bhuvanesh-m-dev/cosmotools" target="_blank" title="Open Source on GitHub">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
       </a>
     </div>
@@ -131,7 +136,7 @@
   <main class="workspace">
 
     <!-- Editor pane -->
-    <div class="pane editor-pane">
+    <div class="pane editor-pane" id="editor-pane">
       <div class="pane-header">
         <span class="pane-title">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
@@ -146,7 +151,7 @@
     <div class="pane-divider" id="pane-divider"></div>
 
     <!-- Output pane -->
-    <div class="pane output-pane">
+    <div class="pane output-pane" id="output-pane">
       <div class="pane-header">
         <span class="pane-title">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
@@ -174,7 +179,7 @@
   </main>
 
   <!-- ── PACKAGE INSTALLER ── -->
-  <div class="package-bar">
+  <div class="package-bar" id="package-bar">
     <span class="pkg-label">📦 micropip install</span>
     <input type="text" id="pkg-input" class="pkg-input" placeholder="numpy, pandas, matplotlib…"/>
     <button class="btn-install" id="btn-install">Install</button>
@@ -183,11 +188,13 @@
 
   <!-- ── FOOTER ── -->
   <footer class="footer">
-    <span>PyFlow — Powered by <strong>Pyodide</strong> &amp; <strong>CodeMirror</strong></span>
+    <span>Py-Run — Online Python Compiler by <strong>CosmoTools</strong></span>
+    <span class="footer-sep">·</span>
+    <span>Powered by <strong>Pyodide</strong> &amp; <strong>CodeMirror</strong></span>
     <span class="footer-sep">·</span>
     <span>No backend · Runs entirely in your browser</span>
     <span class="footer-sep">·</span>
-    <a href="https://github.com/" class="footer-link">Open Source</a>
+    <a href="https://github.com/bhuvanesh-m-dev/cosmotools" class="footer-link">Open Source</a>
   </footer>
 
   <!-- ── TOAST ── -->
