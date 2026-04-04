@@ -1,19 +1,21 @@
 /* ═══════════════════════════════════════════════════
-   PyFlow — Online Python Compiler
+   Py-Run — Online Python Compiler
    script.js  |  Pyodide + CodeMirror, no backend
-═══════════════════════════════════════════════════ */
+   by CosmoTools
+═══════════════════════════════════════════════════*/
 
 "use strict";
 
 /* ── DEFAULT CODE ── */
-const DEFAULT_CODE = `# Welcome to PyFlow 🐍
+const DEFAULT_CODE = `# Welcome to Py-Run 🐍
 # A beautiful, open-source online Python compiler
 # Powered by Pyodide — runs entirely in your browser!
+# by CosmoTools
 
 def greet(name):
     emoji = "🚀"
     print(f"Hello, {name}! {emoji}")
-    return f"Welcome to PyFlow, {name}!"
+    return f"Welcome to Py-Run, {name}!"
 
 names = ["World", "Python", "Open Source"]
 for name in names:
@@ -21,13 +23,13 @@ for name in names:
 
 # Try some math
 import math
-print(f"\\n📐 π = {math.pi:.10f}")
+print(f"\n📐 π = {math.pi:.10f}")
 print(f"📐 e = {math.e:.10f}")
 print(f"📐 √2 = {math.sqrt(2):.10f}")
 
 # List comprehension
 squares = [x**2 for x in range(1, 11)]
-print(f"\\n🔢 Squares 1–10: {squares}")
+print(f"\n🔢 Squares 1–10: {squares}")
 `;
 
 /* ── STATE ── */
@@ -36,18 +38,24 @@ let editor  = null;
 let isRunning = false;
 let outputLineCount = 0;
 let startTime = null;
+let loadingStartTime = null;
+let loadingTimerInterval = null;
+let isRunMode = false; // When true, hide editor and run directly
 
 /* ── ELEMENT REFS ── */
 const $ = id => document.getElementById(id);
 
 const elStatus       = $("pyodide-status");
+const elStatusText   = $("status-text");
+const elLoadingTimer = $("loading-timer");
 const elOutput       = $("output");
 const elBtnRun       = $("btn-run");
 const elBtnClear     = $("btn-clear-output");
 const elBtnClearEd   = $("btn-clear-editor");
 const elBtnCopy      = $("btn-copy");
 const elBtnFormat    = $("btn-format");
-const elBtnShare     = $("btn-share");
+const elBtnShareCode = $("btn-share-code");
+const elBtnShareRun  = $("btn-share-run");
 const elBtnInstall   = $("btn-install");
 const elPkgInput     = $("pkg-input");
 const elPkgStatus    = $("pkg-status");
@@ -57,13 +65,21 @@ const elFontSize     = $("font-size");
 const elExecTime     = $("exec-time");
 const elOutputStats  = $("output-stats");
 const elToast        = $("toast");
+const elEditorPane   = $("editor-pane");
+const elOutputPane   = $("output-pane");
+const elDivider      = $("pane-divider");
+const elToolbar      = $("toolbar");
+const elPackageBar   = $("package-bar");
+const elHeaderCenter = document.querySelector(".header-center");
 
 /* ════════════════════════════════════════════════
    CODEMIRROR SETUP
 ════════════════════════════════════════════════ */
 function initEditor() {
+  const initialCode = getSavedCode() || DEFAULT_CODE;
+
   editor = CodeMirror($("code-editor"), {
-    value: getSavedCode() || DEFAULT_CODE,
+    value: initialCode,
     mode: "python",
     theme: "dracula",
     lineNumbers: true,
@@ -76,6 +92,7 @@ function initEditor() {
     styleActiveLine: true,
     autoRefresh: true,
     keyMap: "sublime",
+    readOnly: isRunMode, // Set read-only in run mode
     extraKeys: {
       "Ctrl-Enter": runCode,
       "Cmd-Enter": runCode,
@@ -88,18 +105,42 @@ function initEditor() {
     gutters: ["CodeMirror-linenumbers"],
   });
 
-  // Auto-save on change
-  editor.on("change", () => {
-    clearTimeout(editor._saveTimer);
-    editor._saveTimer = setTimeout(saveCode, 1000);
-  });
+  // Auto-save on change (only in normal mode)
+  if (!isRunMode) {
+    editor.on("change", () => {
+      clearTimeout(editor._saveTimer);
+      editor._saveTimer = setTimeout(saveCode, 1000);
+    });
+  }
+}
+
+/* ════════════════════════════════════════════════
+   LOADING COUNTDOWN TIMER
+════════════════════════════════════════════════ */
+function startLoadingTimer() {
+  loadingStartTime = performance.now();
+  elLoadingTimer.style.display = "inline";
+
+  loadingTimerInterval = setInterval(() => {
+    const elapsed = ((performance.now() - loadingStartTime) / 1000).toFixed(1);
+    elLoadingTimer.textContent = `(${elapsed}s)`;
+  }, 100);
+}
+
+function stopLoadingTimer() {
+  if (loadingTimerInterval) {
+    clearInterval(loadingTimerInterval);
+    loadingTimerInterval = null;
+  }
+  elLoadingTimer.style.display = "none";
 }
 
 /* ════════════════════════════════════════════════
    PYODIDE INIT
 ════════════════════════════════════════════════ */
 async function initPyodide() {
-  setStatus("loading", "Initialising Pyodide…");
+  setStatus("loading", "⏳ Loading Python runtime (Pyodide)…");
+  startLoadingTimer();
   appendOutput("⏳ Loading Python runtime (Pyodide)…", "info");
 
   try {
@@ -112,7 +153,7 @@ async function initPyodide() {
     pyodide.runPython(`
 import sys, io
 
-class _PyFlowOut:
+class _PyRunOut:
     def __init__(self, cb):
         self._cb = cb
     def write(self, s):
@@ -121,8 +162,8 @@ class _PyFlowOut:
     def flush(self): pass
 
 import js
-sys.stdout = _PyFlowOut(lambda s: js.appendOutputBridge(s, 'stdout'))
-sys.stderr = _PyFlowOut(lambda s: js.appendOutputBridge(s, 'stderr'))
+sys.stdout = _PyRunOut(lambda s: js.appendOutputBridge(s, 'stdout'))
+sys.stderr = _PyRunOut(lambda s: js.appendOutputBridge(s, 'stderr'))
 `);
 
     // Expose JS callbacks into Python-land
@@ -131,6 +172,7 @@ sys.stderr = _PyFlowOut(lambda s: js.appendOutputBridge(s, 'stderr'))
     // Load micropip
     await pyodide.loadPackage("micropip");
 
+    stopLoadingTimer();
     setStatus("ready", "Python 3.11 ready");
     appendOutput("✅ Pyodide loaded — Python 3.11 ready!\n", "success");
     appendOutput('💡 Tip: Use micropip to install packages below. Press Ctrl+Enter to run.\n', "info");
@@ -138,11 +180,41 @@ sys.stderr = _PyFlowOut(lambda s: js.appendOutputBridge(s, 'stderr'))
 
     elBtnRun.disabled = false;
 
+    // If in run mode, auto-run the code
+    if (isRunMode && editor) {
+      setTimeout(() => runCode(), 500);
+    }
+
   } catch (err) {
+    stopLoadingTimer();
     setStatus("error", "Load failed");
     appendOutput("❌ Failed to load Pyodide: " + err.message, "stderr");
     console.error(err);
   }
+}
+
+/* ════════════════════════════════════════════════
+   RUN MODE UI (Hide editor, show only output)
+════════════════════════════════════════════════ */
+function setupRunMode() {
+  if (!isRunMode) return;
+
+  // Hide editor pane
+  elEditorPane.style.display = "none";
+  elDivider.style.display = "none";
+  elToolbar.style.display = "none";
+  elPackageBar.style.display = "none";
+
+  // Make output pane full width
+  elOutputPane.style.flex = "1";
+  elOutputPane.style.width = "100%";
+
+  // Update header
+  elHeaderCenter.innerHTML = '<span style="color: var(--accent); font-size: 12px;">▶ Run Mode — Executing shared code</span>';
+
+  // Update footer to remove branding reference in run mode
+  const footer = document.querySelector(".footer");
+  footer.innerHTML = '<span>Running shared code</span>';
 }
 
 /* ════════════════════════════════════════════════
@@ -222,7 +294,7 @@ function updateStats() {
 ════════════════════════════════════════════════ */
 function setStatus(state, text) {
   elStatus.className = `status ${state}`;
-  elStatus.innerHTML = `<span class="status-dot"></span>${text}`;
+  elStatusText.textContent = text;
 }
 
 /* ════════════════════════════════════════════════
@@ -252,40 +324,40 @@ function applyColorTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
   // Suggest a matching editor theme
   const suggested = THEME_EDITOR_MAP[theme];
-  if (suggested) {
+  if (suggested && !isRunMode) {
     elEditorTheme.value = suggested;
     applyEditorTheme(suggested);
   }
-  localStorage.setItem("pyflow-color-theme", theme);
+  localStorage.setItem("pyrun-color-theme", theme);
 }
 
 function applyEditorTheme(theme) {
   if (editor) editor.setOption("theme", theme);
-  localStorage.setItem("pyflow-editor-theme", theme);
+  localStorage.setItem("pyrun-editor-theme", theme);
 }
 
 function applyFontSize(size) {
   document.querySelectorAll(".CodeMirror").forEach(el => {
     el.style.fontSize = size + "px";
   });
-  localStorage.setItem("pyflow-font-size", size);
+  localStorage.setItem("pyrun-font-size", size);
 }
 
 /* ════════════════════════════════════════════════
    LOCAL STORAGE
 ════════════════════════════════════════════════ */
 function saveCode() {
-  if (editor) localStorage.setItem("pyflow-code", editor.getValue());
+  if (editor && !isRunMode) localStorage.setItem("pyrun-code", editor.getValue());
 }
 
 function getSavedCode() {
-  return localStorage.getItem("pyflow-code");
+  return localStorage.getItem("pyrun-code");
 }
 
 function loadPreferences() {
-  const colorTheme  = localStorage.getItem("pyflow-color-theme")  || "dark-ocean";
-  const editorTheme = localStorage.getItem("pyflow-editor-theme") || "dracula";
-  const fontSize    = localStorage.getItem("pyflow-font-size")    || "14";
+  const colorTheme  = localStorage.getItem("pyrun-color-theme")  || "dark-ocean";
+  const editorTheme = localStorage.getItem("pyrun-editor-theme") || "dracula";
+  const fontSize    = localStorage.getItem("pyrun-font-size")    || "14";
 
   elColorTheme.value  = colorTheme;
   elEditorTheme.value = editorTheme;
@@ -315,30 +387,64 @@ async function copyCode() {
 }
 
 /* ════════════════════════════════════════════════
-   SHARE CODE (URL encode)
+   SHARE AS CODE (Editable share)
 ════════════════════════════════════════════════ */
-async function shareCode() {
+async function shareAsCode() {
   const code = editor.getValue();
   const encoded = btoa(unescape(encodeURIComponent(code)));
   const url = `${location.origin}${location.pathname}?code=${encoded}`;
 
   try {
     await navigator.clipboard.writeText(url);
-    showToast("🔗 Share URL copied!");
+    showToast("🔗 Share as Code URL copied!");
   } catch {
     prompt("Copy this share URL:", url);
   }
 }
 
+/* ════════════════════════════════════════════════
+   SHARE AS RUN (Execute-only share)
+════════════════════════════════════════════════ */
+async function shareAsRun() {
+  const code = editor.getValue();
+  const encoded = btoa(unescape(encodeURIComponent(code)));
+  const url = `${location.origin}${location.pathname}?run=${encoded}`;
+
+  try {
+    await navigator.clipboard.writeText(url);
+    showToast("▶ Share as Run URL copied! (Opens in new tab)");
+  } catch {
+    prompt("Copy this run URL:", url);
+  }
+}
+
+/* ════════════════════════════════════════════════
+   LOAD SHARED CODE
+════════════════════════════════════════════════ */
 function loadSharedCode() {
   const params = new URLSearchParams(location.search);
-  const code = params.get("code");
-  if (code) {
+  const codeParam = params.get("code");
+  const runParam = params.get("run");
+
+  if (runParam) {
+    // Run mode - execute only, no editing
+    isRunMode = true;
     try {
-      const decoded = decodeURIComponent(escape(atob(code)));
-      editor.setValue(decoded);
-    } catch { /* ignore bad base64 */ }
+      const decoded = decodeURIComponent(escape(atob(runParam)));
+      return decoded;
+    } catch { 
+      return null; 
+    }
+  } else if (codeParam) {
+    // Normal share mode - editable
+    try {
+      const decoded = decodeURIComponent(escape(atob(codeParam)));
+      return decoded;
+    } catch { 
+      return null; 
+    }
   }
+  return null;
 }
 
 /* ════════════════════════════════════════════════
@@ -414,6 +520,8 @@ await micropip.install("${pkg}")
    RESIZABLE PANE DIVIDER
 ════════════════════════════════════════════════ */
 function initResizablePanes() {
+  if (isRunMode) return; // No resizing in run mode
+
   const divider    = $("pane-divider");
   const workspace  = divider.parentElement;
   const editorPane = workspace.querySelector(".editor-pane");
@@ -463,7 +571,8 @@ function bindEvents() {
   });
   elBtnCopy.addEventListener("click", copyCode);
   elBtnFormat.addEventListener("click", formatCode);
-  elBtnShare.addEventListener("click", shareCode);
+  elBtnShareCode.addEventListener("click", shareAsCode);
+  elBtnShareRun.addEventListener("click", shareAsRun);
   elBtnInstall.addEventListener("click", installPackages);
 
   elPkgInput.addEventListener("keydown", e => {
@@ -487,19 +596,33 @@ function bindEvents() {
    BOOT
 ════════════════════════════════════════════════ */
 async function boot() {
-  loadPreferences();
+  // Check for shared code first
+  const sharedCode = loadSharedCode();
+
+  if (!isRunMode) {
+    loadPreferences();
+  }
+
   initEditor();
+
+  // If shared code exists, use it
+  if (sharedCode) {
+    editor.setValue(sharedCode);
+  }
+
   bindEvents();
   initResizablePanes();
 
-  // Apply saved editor theme & font size after CM init
-  const savedEdTheme = localStorage.getItem("pyflow-editor-theme") || "dracula";
-  const savedFont    = localStorage.getItem("pyflow-font-size")    || "14";
-  applyEditorTheme(savedEdTheme);
-  applyFontSize(savedFont);
+  // Apply saved editor theme & font size after CM init (only in normal mode)
+  if (!isRunMode) {
+    const savedEdTheme = localStorage.getItem("pyrun-editor-theme") || "dracula";
+    const savedFont    = localStorage.getItem("pyrun-font-size")    || "14";
+    applyEditorTheme(savedEdTheme);
+    applyFontSize(savedFont);
+  }
 
-  // Load shared code from URL
-  loadSharedCode();
+  // Setup run mode UI if needed
+  setupRunMode();
 
   // Disable run until Pyodide ready
   elBtnRun.disabled = true;
