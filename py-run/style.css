@@ -1,7 +1,8 @@
 /* ═══════════════════════════════════════════════════
-   PyFlow — Online Python Compiler
+   Py-Run — Online Python Compiler
    style.css  |  Multi-theme, no-backend
-═══════════════════════════════════════════════════ */
+   by CosmoTools
+═══════════════════════════════════════════════════*/
 
 /* ── THEME VARIABLES ── */
 
@@ -568,6 +569,11 @@ body::before {
 
 .CodeMirror-scroll { min-height: 100%; }
 .CodeMirror-gutters { border-right: 1px solid var(--border) !important; }
+
+/* Read-only mode styling */
+.CodeMirror-readonly .CodeMirror-cursor {
+  display: none !important;
+}
 
 /* ── OUTPUT CONSOLE ── */
 
