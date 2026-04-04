@@ -59,6 +59,7 @@ const elBtnClear    = $("btn-clear-output");
 const elBtnClearEd  = $("btn-clear-editor");
 const elBtnUpload   = $("btn-upload");
 const elFileUpload  = $("file-upload");
+const elBtnDownload = $("btn-download");
 const elBtnCopy     = $("btn-copy");
 const elBtnFormat   = $("btn-format");
 const elBtnInstall  = $("btn-install");
@@ -302,6 +303,23 @@ function handleFileUpload(e) {
 }
 
 /* ════════════════════════════════════════════════
+   DOWNLOAD FILE
+════════════════════════════════════════════════ */
+function downloadCode() {
+  const code = editor.getValue();
+  const blob = new Blob([code], { type: "text/x-python" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "main.py";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("✅ Code downloaded as main.py");
+}
+
+/* ════════════════════════════════════════════════
    FORMAT / VALIDATE SYNTAX
 ════════════════════════════════════════════════ */
 async function formatCode() {
@@ -466,6 +484,7 @@ function bindEvents() {
   elBtnClear.addEventListener("click",   clearOutput);
   elBtnUpload.addEventListener("click",  () => elFileUpload.click());
   elFileUpload.addEventListener("change", handleFileUpload);
+  elBtnDownload.addEventListener("click", downloadCode);
   elBtnClearEd.addEventListener("click", () => {
     if (confirm("Clear editor?")) { editor.setValue(""); saveCode(); }
   });
