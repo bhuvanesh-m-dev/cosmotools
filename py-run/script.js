@@ -9,23 +9,20 @@
 /* ── DEFAULT STARTER CODE ── */
 const DEFAULT_CODE = `# Welcome to Py-Run 🐍
 # Online Python Compiler by CosmoTools
-# Powered by Pyodide — runs entirely in your browser!
+# Runs entirely in your browser!
 
-def greet(name):
-    emoji = "🚀"
-    print(f"Hello, {name}! {emoji}")
+import cosmotalker
 
-names = ["World", "Python", "Open Source"]
-for name in names:
-    greet(name)
-
-import math
-print(f"\\n📐 π  = {math.pi:.10f}")
-print(f"📐 e  = {math.e:.10f}")
-print(f"📐 √2 = {math.sqrt(2):.10f}")
-
-squares = [x**2 for x in range(1, 11)]
-print(f"\\n🔢 Squares 1–10: {squares}")
+print(cosmotalker.get("earth"))           # Offline solar system data
+print(cosmotalker.feedback())             # Send feedback
+print(cosmotalker.apod())                 # Astronomy Picture of the Day
+print(cosmotalker.celestrak())            # Satellite tracking
+print(cosmotalker.search("yt"))           # Open YouTube in browser
+print(cosmotalker.search("words"))        # Eco-friendly web search and download Cosmo4U at bhuvaneshm.in/cosmo4u
+print(cosmotalker.get("gravity"))         # Deep science query
+print(cosmotalker.spacex())               # SpaceX launch data
+print(cosmotalker.wiki("black hole"))     # Wikipedia summary
+print(cosmotalker.img())                  # Image viewer (Beta)
 `;
 
 /* ── EDITOR ↔ THEME MAP ── */
@@ -147,6 +144,7 @@ async function initPyodide() {
     /* Redirect Python sys.stdout / sys.stderr → JS callbacks */
     pyodide.runPython(`
 import sys
+import builtins
 
 class _PyRunOut:
     def __init__(self, kind):
@@ -159,6 +157,19 @@ class _PyRunOut:
 
 sys.stdout = _PyRunOut('stdout')
 sys.stderr = _PyRunOut('stderr')
+
+def _pyrun_input(prompt_text=""):
+    if prompt_text:
+        import js
+        js.appendOutputBridge(str(prompt_text), "stdout")
+    import js
+    val = js.prompt(prompt_text)
+    if val is None:
+        raise KeyboardInterrupt("Input cancelled")
+    js.appendOutputBridge(val + "\\n", "stdout")
+    return val
+
+builtins.input = _pyrun_input
 `);
 
     await pyodide.loadPackage("micropip");
