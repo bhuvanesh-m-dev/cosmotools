@@ -97,6 +97,7 @@
     /* Redirect Python stdout/stderr through JS callbacks */
     py.runPython(`
 import sys
+import builtins
 
 class _Out:
     def write(self, s):
@@ -114,6 +115,19 @@ class _Err:
 
 sys.stdout = _Out()
 sys.stderr = _Err()
+
+def _shared_input(prompt_text=""):
+    if prompt_text:
+        import js
+        js._pyWrite(str(prompt_text), False)
+    import js
+    val = js.prompt(prompt_text)
+    if val is None:
+        raise KeyboardInterrupt("Input cancelled")
+    js._pyWrite(val + "\\n", False)
+    return val
+
+builtins.input = _shared_input
 `);
 
     window._pyWrite = (text, isErr) => write(text, isErr);
