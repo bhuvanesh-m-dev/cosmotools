@@ -556,8 +556,29 @@
   .pane-divider::after { width: 32px; height: 2px; }
   .tagline           { display: none; }
   .btn-run kbd       { display: none; }
-  .toolbar           { padding: 6px 10px; }
+  .toolbar           { padding: 6px 10px; justify-content: space-between; }
   .header-center     { display: none; }
+
+  /* Compact header */
+  .header            { padding: 0 10px; }
+  .logo-text         { font-size: 16px; }
+  .btn-share-main    { font-size: 0; padding: 6px 8px; gap: 0; }
+  .share-arrow       { display: none; }
+
+  /* Compact tool buttons */
+  .btn-tool          { font-size: 0; padding: 6px 8px; gap: 0; }
+  .btn-run           { padding: 6px 14px; font-size: 12px; }
+
+  /* Compact select menus */
+  .select-group label { display: none; }
+
+  /* Package bar and footer */
+  .package-bar       { flex-wrap: wrap; gap: 6px; }
+  .pkg-label         { flex: 1 1 100%; margin-bottom: 2px; }
+  .pkg-input         { flex: 1 1 auto; max-width: none; }
+  .btn-install       { flex: 0 0 auto; }
+  .pkg-status        { flex: 1 1 100%; }
+  .footer            { justify-content: center; text-align: center; }
 }
 
 /* ── SHARE DROPDOWN ── */
