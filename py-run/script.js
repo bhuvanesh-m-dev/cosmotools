@@ -456,34 +456,71 @@ function initResizablePanes() {
   const editorPane = workspace.querySelector(".editor-pane");
   const outputPane = workspace.querySelector(".output-pane");
 
-  let dragging = false, startX, startEdW, startOutW;
+  let dragging = false, startX, startY, startEdSize, startOutSize, isVertical;
 
-  divider.addEventListener("mousedown", e => {
+  function onStart(e) {
     dragging  = true;
-    startX    = e.clientX;
-    startEdW  = editorPane.getBoundingClientRect().width;
-    startOutW = outputPane.getBoundingClientRect().width;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    startX     = clientX;
+    startY     = clientY;
+    isVertical = window.innerWidth <= 720;
+    
+    if (isVertical) {
+      startEdSize  = editorPane.getBoundingClientRect().height;
+      startOutSize = outputPane.getBoundingClientRect().height;
+    } else {
+      startEdSize  = editorPane.getBoundingClientRect().width;
+      startOutSize = outputPane.getBoundingClientRect().width;
+    }
+    
     divider.classList.add("dragging");
-    document.body.style.cursor     = "col-resize";
+    document.body.style.cursor     = isVertical ? "row-resize" : "col-resize";
     document.body.style.userSelect = "none";
-  });
+  }
 
-  document.addEventListener("mousemove", e => {
+  function onMove(e) {
     if (!dragging) return;
-    const dx     = e.clientX - startX;
-    const total  = startEdW + startOutW;
-    const newEdW = Math.max(200, Math.min(total - 200, startEdW + dx));
-    editorPane.style.flex = `0 0 ${newEdW}px`;
-    outputPane.style.flex = `0 0 ${total - newEdW}px`;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    if (isVertical) {
+      const dy     = clientY - startY;
+      const total  = startEdSize + startOutSize;
+      const newEdH = Math.max(100, Math.min(total - 100, startEdSize + dy));
+      editorPane.style.flex = `0 0 ${newEdH}px`;
+      outputPane.style.flex = `0 0 ${total - newEdH}px`;
+    } else {
+      const dx     = clientX - startX;
+      const total  = startEdSize + startOutSize;
+      const newEdW = Math.max(200, Math.min(total - 200, startEdSize + dx));
+      editorPane.style.flex = `0 0 ${newEdW}px`;
+      outputPane.style.flex = `0 0 ${total - newEdW}px`;
+    }
     if (editor) editor.refresh();
-  });
+  }
 
-  document.addEventListener("mouseup", () => {
+  function onEnd() {
     if (!dragging) return;
     dragging = false;
     divider.classList.remove("dragging");
     document.body.style.cursor     = "";
     document.body.style.userSelect = "";
+  }
+
+  divider.addEventListener("mousedown", onStart);
+  divider.addEventListener("touchstart", onStart, { passive: true });
+  document.addEventListener("mousemove", onMove);
+  document.addEventListener("touchmove", onMove, { passive: true });
+  document.addEventListener("mouseup", onEnd);
+  document.addEventListener("touchend", onEnd);
+
+  window.addEventListener("resize", () => {
+    // Wipe flex properties on window resize to ensure desktop/mobile orientations don't clash 
+    editorPane.style.flex = "";
+    outputPane.style.flex = "";
+    if (editor) editor.refresh();
   });
 }
 
