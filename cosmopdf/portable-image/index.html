@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portable-Image | PDF/Image Converter by CosmoTools</title>
+    <meta name="description" content="Convert PDF to images and images to PDF - 100% local processing, no cloud storage, complete privacy protection.">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        /* Pure Black & White Configuration */
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Space Grotesk', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Brutalist utility classes */
+        .bw-border {
+            border: 2px solid var(--text-color);
+        }
+
+        .bw-border-b {
+            border-bottom: 2px solid var(--text-color);
+        }
+
+        .bw-hover {
+            transition: all 0.2s ease;
+        }
+
+        .bw-hover:hover {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        .bw-hover-invert {
+            transition: all 0.2s ease;
+            background-color: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        .bw-hover-invert:hover {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #000;
+            border-left: 2px solid #fff;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fff;
+        }
+
+        .grid-pattern {
+            background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* Upload area styles */
+        .upload-area {
+            min-height: 300px;
+            transition: all 0.2s ease;
+        }
+
+        .upload-area.drag-over {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Social share buttons */
+        .social-share-btn {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .social-share-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: white;
+            transition: width 0.3s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .bw-border, .bw-border-b {
+                border-width: 1px;
+            }
+            
+            .upload-area {
+                min-height: 200px;
+            }
+        }
+    </style>
+</head>
+<body class="grid-pattern">
+    <!-- Header Section -->
+    <header class="bw-border-b" style="padding: 2rem;">
+        <div style="max-width: 1400px; margin: 0 auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+                <div>
+                    <h1 style="font-size: 3rem; font-weight: 700; letter-spacing: -0.02em;">
+                        PORTABLE-<br>
+                        <span class="font-mono" style="font-size: 1.5rem;">IMAGE</span>
+                    </h1>
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1rem;">
+                        <span class="font-mono" style="font-size: 0.875rem;">POWERED BY</span>
+                        <span class="font-mono" style="font-size: 1.25rem; font-weight: 700;">COSMOTOOLS</span>
+                    </div>
+                </div>
+                <div class="font-mono" style="text-align: right;">
+                    <div class="bw-border" style="padding: 1rem;">
+                        <div>⚡ 100% LOCAL</div>
+                        <div style="font-size: 0.75rem; margin-top: 0.5rem;">NO CLOUD STORAGE</div>
+                        <div style="font-size: 0.75rem; margin-top: 0.25rem;">🔒 COMPLETE PRIVACY</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+        <!-- Tool Selection -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+            <!-- PDF to Image Tool -->
+            <div class="bw-border group" style="padding: 2rem; transition: all 0.2s ease; cursor: pointer;" id="pdf-to-image-tool">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📄 → 🖼️</div>
+                <h2 class="font-mono" style="font-size: 1.5rem; margin-bottom: 0.5rem;">PDF TO IMAGE</h2>
+                <p style="opacity: 0.7;">Convert PDF pages to PNG/JPEG/WebP</p>
+                <div class="bw-border" style="margin-top: 1rem; padding: 0.5rem; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem;">
+                    SELECT PDF →
+                </div>
+            </div>
+
+            <!-- Image to PDF Tool -->
+            <div class="bw-border group" style="padding: 2rem; transition: all 0.2s ease; cursor: pointer;" id="image-to-pdf-tool">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🖼️ → 📄</div>
+                <h2 class="font-mono" style="font-size: 1.5rem; margin-bottom: 0.5rem;">IMAGE TO PDF</h2>
+                <p style="opacity: 0.7;">Convert images to single PDF</p>
+                <div class="bw-border" style="margin-top: 1rem; padding: 0.5rem; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem;">
+                    SELECT IMAGES →
+                </div>
+            </div>
+
+            <!-- Download Image Tool -->
+            <div class="bw-border group" style="padding: 2rem; transition: all 0.2s ease; cursor: pointer;" id="download-tool">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">💾</div>
+                <h2 class="font-mono" style="font-size: 1.5rem; margin-bottom: 0.5rem;">DOWNLOAD IMAGE</h2>
+                <p style="opacity: 0.7;">Save images in any format</p>
+                <div class="bw-border" style="margin-top: 1rem; padding: 0.5rem; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem;">
+                    CHOOSE FORMAT →
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Tool Display -->
+        <div id="active-tool" class="bw-border" style="padding: 2rem; margin-bottom: 2rem;">
+            <div class="font-mono" style="margin-bottom: 1rem;">└ ACTIVE TOOL: NONE SELECTED ┘</div>
+            <div id="tool-content" style="min-height: 400px;">
+                <div style="text-align: center; padding: 3rem;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">⚡</div>
+                    <p class="font-mono">Select a tool above to begin</p>
+                    <p style="margin-top: 1rem; opacity: 0.7;">All processing happens locally in your browser</p>
+                    <p style="margin-top: 0.5rem; opacity: 0.5; font-size: 0.875rem;">Your files never leave your device</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Format Settings -->
+        <div class="bw-border" style="padding: 1.5rem; margin-bottom: 2rem;">
+            <div class="font-mono" style="margin-bottom: 1rem;">└ IMAGE SETTINGS ┘</div>
+            <div style="display: flex; gap: 2rem; flex-wrap: wrap; align-items: center;">
+                <div>
+                    <label class="font-mono" style="display: block; margin-bottom: 0.5rem;">Format</label>
+                    <select id="image-format" class="font-mono" style="background: black; color: white; border: 2px solid white; padding: 0.5rem 1rem;">
+                        <option value="png">PNG (Lossless)</option>
+                        <option value="jpeg">JPEG (Compressed)</option>
+                        <option value="webp">WebP (Modern)</option>
+                        <option value="bmp">BMP (Uncompressed)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="font-mono" style="display: block; margin-bottom: 0.5rem;">Quality (JPEG/WebP)</label>
+                    <input type="range" id="image-quality" min="0.1" max="1" step="0.05" value="0.9" style="width: 200px;">
+                    <span id="quality-value" class="font-mono" style="margin-left: 1rem;">90%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Share & Info Section -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+            <!-- Social Sharing -->
+            <div class="bw-border" style="padding: 2rem;">
+                <div class="font-mono" style="margin-bottom: 1.5rem;">└ SHARE THIS TOOL ┘</div>
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div id="qr-container" style="display: inline-block; padding: 1rem; border: 2px solid white;"></div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <button class="social-share-btn" data-platform="whatsapp" style="background: transparent; color: white; border: 2px solid white; padding: 0.75rem; cursor: pointer; font-family: 'JetBrains Mono', monospace;">
+                        📱 WhatsApp
+                    </button>
+                    <button class="social-share-btn" data-platform="telegram" style="background: transparent; color: white; border: 2px solid white; padding: 0.75rem; cursor: pointer; font-family: 'JetBrains Mono', monospace;">
+                        ✈️ Telegram
+                    </button>
+                    <button class="social-share-btn" data-platform="linkedin" style="background: transparent; color: white; border: 2px solid white; padding: 0.75rem; cursor: pointer; font-family: 'JetBrains Mono', monospace;">
+                        🔗 LinkedIn
+                    </button>
+                </div>
+                <button id="copy-link-btn" class="bw-hover font-mono" style="margin-top: 1rem; width: 100%; padding: 0.75rem; background: transparent; color: white; border: 2px solid white; cursor: pointer;">
+                    📋 COPY LINK
+                </button>
+            </div>
+
+            <!-- Privacy & Info -->
+            <div class="bw-border" style="padding: 2rem;">
+                <div class="font-mono" style="margin-bottom: 1.5rem;">└ PRIVACY & SECURITY ┘</div>
+                <div style="space-y: 1rem;">
+                    <div style="margin-bottom: 1rem;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🔒</div>
+                        <p class="font-mono" style="font-weight: bold;">100% Local Processing</p>
+                        <p style="font-size: 0.875rem; opacity: 0.7;">All file conversions happen directly in your browser. No data is ever uploaded to any server.</p>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🚫</div>
+                        <p class="font-mono" style="font-weight: bold;">No Cloud Storage</p>
+                        <p style="font-size: 0.875rem; opacity: 0.7;">Your files are never stored in the cloud. Once you close the tab, all data is gone.</p>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">✨</div>
+                        <p class="font-mono" style="font-weight: bold;">Complete Privacy</p>
+                        <p style="font-size: 0.875rem; opacity: 0.7;">No tracking, no analytics, no data collection. Your privacy is fully protected.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Portable-Image -->
+        <div class="bw-border" style="padding: 2rem;">
+            <div class="font-mono" style="margin-bottom: 1.5rem;">└ ABOUT PORTABLE-IMAGE ┘</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+                <div>
+                    <p class="font-mono" style="font-weight: bold; margin-bottom: 0.5rem;">What is Portable-Image?</p>
+                    <p style="font-size: 0.875rem; opacity: 0.7;">A powerful, privacy-focused web tool that converts PDF documents to images and images to PDF documents - all in your browser.</p>
+                </div>
+                <div>
+                    <p class="font-mono" style="font-weight: bold; margin-bottom: 0.5rem;">Key Features</p>
+                    <ul style="font-size: 0.875rem; opacity: 0.7; list-style: none;">
+                        <li>✓ PDF to Image (PNG, JPEG, WebP, BMP)</li>
+                        <li>✓ Image to PDF conversion</li>
+                        <li>✓ Multiple image formats support</li>
+                        <li>✓ Download as ZIP archive</li>
+                        <li>✓ Adjustable image quality</li>
+                        <li>✓ Drag & drop interface</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="font-mono" style="font-weight: bold; margin-bottom: 0.5rem;">Powered By</p>
+                    <p style="font-size: 0.875rem; opacity: 0.7;">CosmoTools - Suite of privacy-first web utilities. Built with PDF.js, jsPDF, JSZip, and modern web technologies.</p>
+                    <div class="bw-border" style="margin-top: 1rem; padding: 0.5rem; text-align: center;">
+                        <span class="font-mono" style="font-size: 0.75rem;">bhuvanesh-m-dev/cosmotools</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bw-border" style="margin-top: 2rem; padding: 2rem; text-align: center;">
+        <div class="font-mono" style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1rem;">
+            <span>🔒 100% LOCAL PROCESSING</span>
+            <span>⚡ NO UPLOAD REQUIRED</span>
+            <span>📁 NO DATA STORAGE</span>
+            <span>🎯 COMPLETE PRIVACY</span>
+        </div>
+        <div style="font-size: 0.875rem; opacity: 0.7;">
+            <p>Portable-Image | Powered by CosmoTools</p>
+            <p style="margin-top: 0.5rem;">All conversions happen locally in your browser - Your files never leave your device</p>
+            <p style="margin-top: 0.5rem; font-size: 0.75rem;">© 2026 - Present CosmoTools. Open Source. Privacy First.</p>
+        </div>
+    </footer>
+
+    <!-- Notifications -->
+    <div id="notifications" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

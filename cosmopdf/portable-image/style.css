@@ -1,0 +1,120 @@
+/* Pure Black & White Configuration */
+:root {
+    --bg-color: #000000;
+    --text-color: #ffffff;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Space Grotesk', sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+.font-mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Brutalist utility classes */
+.bw-border {
+    border: 2px solid var(--text-color);
+}
+
+.bw-border-b {
+    border-bottom: 2px solid var(--text-color);
+}
+
+.bw-hover {
+    transition: all 0.2s ease;
+}
+
+.bw-hover:hover {
+    background-color: var(--text-color);
+    color: var(--bg-color);
+}
+
+.bw-hover-invert {
+    transition: all 0.2s ease;
+    background-color: var(--text-color);
+    color: var(--bg-color);
+}
+
+.bw-hover-invert:hover {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+::-webkit-scrollbar-track {
+    background: #000;
+    border-left: 2px solid #fff;
+}
+::-webkit-scrollbar-thumb {
+    background: #fff;
+}
+
+/* Table styles */
+table.bw-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+table.bw-table th, table.bw-table td {
+    border: 2px solid var(--text-color);
+    padding: 1rem;
+    text-align: left;
+}
+table.bw-table th {
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+}
+
+.grid-pattern {
+    background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+/* Dark pattern for white sections */
+.grid-pattern-dark {
+    background-image: linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+/* Additional hover effects for tool cards */
+.group:hover .group-hover\:bg-white {
+    background-color: #ffffff;
+}
+
+.group:hover .group-hover\:text-black {
+    color: #000000;
+}
+
+.group:hover .group-hover\:border-2 {
+    border-width: 2px;
+}
+
+/* Rotation utility for the built with box */
+.rotate-1 {
+    transform: rotate(1deg);
+}
+
+/* Ensure links and buttons have proper cursor */
+a, button {
+    cursor: pointer;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .bw-border, .bw-border-b {
+        border-width: 1px;
+    }
+    
+    table.bw-table th, table.bw-table td {
+        padding: 0.75rem;
+    }
+}
