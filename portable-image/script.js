@@ -17,6 +17,20 @@ const imageFormat = document.getElementById('image-format');
 const imageQuality = document.getElementById('image-quality');
 const qualityValue = document.getElementById('quality-value');
 
+// Share message
+const SHARE_MESSAGE = `Portable-Image - Convert PDF to Images & Images to PDF
+
+🔒 100% Local Processing - No Cloud Storage
+✨ Complete Privacy Protection
+📄 PDF → 🖼️ Images
+🖼️ Images → 📄 PDF
+
+Your files never leave your device. All conversions happen in your browser.
+
+Try it now:`;
+
+const TOOL_URL = 'https://bhuvanesh-m-dev.github.io/cosmotools/portable-image';
+
 // Notification function
 function showNotification(message, isError = false) {
     const notifications = document.getElementById('notifications');
@@ -26,6 +40,7 @@ function showNotification(message, isError = false) {
     notification.style.background = isError ? 'white' : 'black';
     notification.style.color = isError ? 'black' : 'white';
     notification.style.border = '2px solid white';
+    notification.style.maxWidth = '300px';
     notification.innerHTML = message;
     
     notifications.appendChild(notification);
@@ -42,6 +57,39 @@ imageQuality.addEventListener('input', (e) => {
     qualityValue.textContent = `${value}%`;
 });
 
+// Social Sharing Function
+function shareToPlatform(platform) {
+    const encodedUrl = encodeURIComponent(TOOL_URL);
+    const encodedMessage = encodeURIComponent(SHARE_MESSAGE);
+    
+    let shareUrl = '';
+    
+    switch(platform) {
+        case 'whatsapp':
+            shareUrl = `https://wa.me/?text=${encodedMessage}%20${encodedUrl}`;
+            break;
+        case 'telegram':
+            shareUrl = `https://t.me/share/url?url=${encodedUrl}&text=${encodedMessage}`;
+            break;
+        case 'linkedin':
+            shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
+            break;
+    }
+    
+    window.open(shareUrl, '_blank', 'width=600,height=400');
+    showNotification(`Sharing to ${platform.charAt(0).toUpperCase() + platform.slice(1)}...`);
+}
+
+// Copy link function
+async function copyLink() {
+    try {
+        await navigator.clipboard.writeText(TOOL_URL);
+        showNotification('Link copied to clipboard! Share with others.');
+    } catch (err) {
+        showNotification('Failed to copy link', true);
+    }
+}
+
 // PDF to Image Tool
 pdfToImageTool.addEventListener('click', () => {
     activeTool = 'pdf-to-image';
@@ -52,6 +100,7 @@ pdfToImageTool.addEventListener('click', () => {
             <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
             <p class="font-mono">Click or drag PDF here</p>
             <p style="font-size: 0.875rem; margin-top: 1rem; opacity: 0.7;">Maximum size: 50MB</p>
+            <p style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.5;">🔒 Your PDF stays local - never uploaded</p>
             <input type="file" id="pdf-upload" accept=".pdf" style="display: none;">
         </div>
         <div id="pdf-preview" style="margin-top: 2rem;"></div>
@@ -91,7 +140,6 @@ pdfToImageTool.addEventListener('click', () => {
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
             currentPDF = pdf;
             
-            // Show first page preview
             const page = await pdf.getPage(1);
             const viewport = page.getViewport({ scale: 1 });
             const canvas = document.createElement('canvas');
@@ -103,22 +151,21 @@ pdfToImageTool.addEventListener('click', () => {
             
             pdfPreview.innerHTML = `
                 <div class="bw-border" style="padding: 1rem;">
-                    <p class="font-mono">PDF Loaded: ${file.name}</p>
+                    <p class="font-mono">✓ PDF Loaded: ${file.name}</p>
                     <p class="font-mono">Pages: ${pdf.numPages}</p>
                     <div style="margin-top: 1rem;">
-                        <img src="${canvas.toDataURL()}" alt="Preview" style="max-width: 100%; max-height: 200px; object-fit: contain;">
+                        <img src="${canvas.toDataURL()}" alt="Preview" style="max-width: 100%; max-height: 200px; object-fit: contain; border: 2px solid white;">
                     </div>
                 </div>
             `;
             pdfControls.style.display = 'block';
-            showNotification(`PDF loaded successfully! ${pdf.numPages} pages found.`);
+            showNotification(`PDF loaded! ${pdf.numPages} pages ready for conversion.`);
         } catch (error) {
             console.error(error);
             showNotification('Failed to load PDF', true);
         }
     });
     
-    // Drag and drop
     pdfUploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
         pdfUploadArea.classList.add('drag-over');
@@ -140,10 +187,9 @@ pdfToImageTool.addEventListener('click', () => {
         }
     });
     
-    // Convert PDF button
     document.addEventListener('click', async (e) => {
         if (e.target.id === 'convert-pdf-btn' && currentPDF) {
-            showNotification(`Converting ${currentPDF.numPages} pages...`);
+            showNotification(`Converting ${currentPDF.numPages} pages locally...`);
             const images = [];
             
             for (let i = 1; i <= currentPDF.numPages; i++) {
@@ -162,25 +208,22 @@ pdfToImageTool.addEventListener('click', () => {
             currentImages = images;
             currentImageData = images[0];
             
-            // Display all pages
             pdfPreview.innerHTML += `
                 <div class="bw-border" style="margin-top: 1rem; padding: 1rem;">
-                    <p class="font-mono">Converted Pages:</p>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                    <p class="font-mono">✓ Converted ${images.length} Pages:</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem; max-height: 400px; overflow-y: auto;">
                         ${images.map((img, idx) => `
-                            <div>
+                            <div style="cursor: pointer;" onclick="window.selectImage(${idx})">
                                 <img src="${img}" alt="Page ${idx + 1}" style="width: 100%; border: 2px solid white;">
-                                <p class="font-mono" style="text-align: center; margin-top: 0.5rem;">Page ${idx + 1}</p>
+                                <p class="font-mono" style="text-align: center; margin-top: 0.5rem; font-size: 0.75rem;">Page ${idx + 1}</p>
                             </div>
                         `).join('')}
                     </div>
-                    <button id="download-all-images" class="bw-hover font-mono" style="margin-top: 1rem; padding: 0.5rem 1rem; background: transparent; color: white; border: 2px solid white; cursor: pointer;">
-                        DOWNLOAD ALL AS ZIP (COMING SOON) →
-                    </button>
+                    <p class="font-mono" style="margin-top: 1rem; font-size: 0.75rem;">💡 Tip: Use the Download Image tool to save individual images</p>
                 </div>
             `;
             
-            showNotification(`Converted ${currentPDF.numPages} pages to images! Use Download Tool to save individual images.`);
+            showNotification(`Converted ${currentPDF.numPages} pages! Use Download Tool to save images.`);
         }
         
         if (e.target.id === 'clear-pdf-btn') {
@@ -204,6 +247,7 @@ imageToPdfTool.addEventListener('click', () => {
             <div style="font-size: 3rem; margin-bottom: 1rem;">🖼️</div>
             <p class="font-mono">Click to select images</p>
             <p style="font-size: 0.875rem; margin-top: 1rem; opacity: 0.7;">Supports PNG, JPEG, WebP, BMP</p>
+            <p style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.5;">🔒 Your images stay local - never uploaded</p>
             <input type="file" id="image-upload" accept="image/*" multiple style="display: none;">
         </div>
         <div id="image-preview-list" style="margin-top: 2rem;"></div>
@@ -228,7 +272,7 @@ imageToPdfTool.addEventListener('click', () => {
         const files = Array.from(e.target.files);
         if (files.length === 0) return;
         
-        showNotification(`Loading ${files.length} images...`);
+        showNotification(`Loading ${files.length} images locally...`);
         const images = [];
         
         for (const file of files) {
@@ -243,28 +287,26 @@ imageToPdfTool.addEventListener('click', () => {
         currentImages = images;
         currentImageData = images[0];
         
-        // Display image previews
         imagePreviewList.innerHTML = `
             <div class="bw-border" style="padding: 1rem;">
-                <p class="font-mono">Selected Images: ${images.length}</p>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                <p class="font-mono">✓ ${images.length} Images Loaded</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem; max-height: 400px; overflow-y: auto;">
                     ${images.map((img, idx) => `
                         <div>
                             <img src="${img}" alt="Image ${idx + 1}" style="width: 100%; border: 2px solid white;">
-                            <p class="font-mono" style="text-align: center; margin-top: 0.5rem;">Image ${idx + 1}</p>
+                            <p class="font-mono" style="text-align: center; margin-top: 0.5rem; font-size: 0.75rem;">Image ${idx + 1}</p>
                         </div>
                     `).join('')}
                 </div>
             </div>
         `;
         imageToPdfControls.style.display = 'block';
-        showNotification(`${images.length} images loaded! Ready to create PDF.`);
+        showNotification(`${images.length} images ready for PDF conversion!`);
     });
     
-    // Create PDF button
     document.addEventListener('click', async (e) => {
         if (e.target.id === 'create-pdf-btn' && currentImages && currentImages.length > 0) {
-            showNotification('Creating PDF...');
+            showNotification('Creating PDF locally...');
             const { jsPDF } = window.jspdf;
             
             try {
@@ -292,8 +334,8 @@ imageToPdfTool.addEventListener('click', () => {
                         });
                     }
                     
-                    pdf.save('converted-images.pdf');
-                    showNotification('PDF created and downloaded successfully!');
+                    pdf.save('portable-image-converted.pdf');
+                    showNotification('PDF created and downloaded! Your files never left your device.');
                 };
             } catch (error) {
                 console.error(error);
@@ -330,6 +372,7 @@ downloadTool.addEventListener('click', () => {
                     <div style="font-size: 3rem; margin-bottom: 1rem;">🖼️</div>
                     <p class="font-mono">No image available</p>
                     <p style="margin-top: 1rem; opacity: 0.7;">Convert a PDF to images or upload images first</p>
+                    <p style="margin-top: 0.5rem; opacity: 0.5;">All processing happens locally - no upload required</p>
                 </div>
             `}
             
@@ -349,7 +392,6 @@ downloadTool.addEventListener('click', () => {
         </div>
     `;
     
-    // Add global function for image selection
     window.selectImage = (index) => {
         if (currentImages && currentImages[index]) {
             currentImageData = currentImages[index];
@@ -381,7 +423,6 @@ downloadTool.addEventListener('click', () => {
         }
     };
     
-    // Download button handler
     document.addEventListener('click', (e) => {
         if (e.target.id === 'download-current-btn' && currentImageData) {
             const format = imageFormat.value;
@@ -404,12 +445,12 @@ downloadTool.addEventListener('click', () => {
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `image.${format === 'jpeg' ? 'jpg' : format}`;
+                    a.download = `portable-image.${format === 'jpeg' ? 'jpg' : format}`;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
-                    showNotification(`Image downloaded as ${format.toUpperCase()}`);
+                    showNotification(`Image saved as ${format.toUpperCase()} - 100% local download`);
                 }, mimeType, quality);
             };
         }
@@ -426,7 +467,7 @@ function generateQRCode() {
     qrContainer.innerHTML = '';
     
     qrCode = new QRCode(qrContainer, {
-        text: 'https://bhuvanesh-m-dev.github.io/cosmotools/portable-image',
+        text: TOOL_URL,
         width: 150,
         height: 150,
         colorDark: '#ffffff',
@@ -435,15 +476,26 @@ function generateQRCode() {
     });
 }
 
+// Social sharing event listeners
+document.querySelectorAll('.social-share-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const platform = btn.getAttribute('data-platform');
+        shareToPlatform(platform);
+    });
+});
+
+// Copy link button
+document.getElementById('copy-link-btn')?.addEventListener('click', copyLink);
+
 // Download QR Code
 document.getElementById('download-qr-btn')?.addEventListener('click', () => {
     const qrCanvas = document.querySelector('#qr-container canvas');
     if (qrCanvas) {
         const link = document.createElement('a');
-        link.download = 'cosmotools-qr.png';
+        link.download = 'portable-image-qr.png';
         link.href = qrCanvas.toDataURL();
         link.click();
-        showNotification('QR Code downloaded!');
+        showNotification('QR Code downloaded! Share with others.');
     } else {
         showNotification('QR Code not ready', true);
     }
@@ -451,4 +503,4 @@ document.getElementById('download-qr-btn')?.addEventListener('click', () => {
 
 // Initialize
 setTimeout(generateQRCode, 100);
-showNotification('Welcome to CosmoTools Portable Image Studio! Select a tool to begin.');
+showNotification('Welcome to Portable-Image by CosmoTools! Select a tool to begin. 🔒');
