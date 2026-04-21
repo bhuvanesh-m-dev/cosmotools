@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF/Image Converter | CosmoTools</title>
+    <title>Portable-Image | PDF/Image Converter by CosmoTools</title>
+    <meta name="description" content="Convert PDF to images and images to PDF - 100% local processing, no cloud storage, complete privacy protection.">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -74,58 +75,13 @@
             background: #fff;
         }
 
-        /* Table styles */
-        table.bw-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        table.bw-table th, table.bw-table td {
-            border: 2px solid var(--text-color);
-            padding: 1rem;
-            text-align: left;
-        }
-        table.bw-table th {
-            font-family: 'JetBrains Mono', monospace;
-            text-transform: uppercase;
-        }
-
         .grid-pattern {
             background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
                               linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
             background-size: 40px 40px;
         }
 
-        /* Dark pattern for white sections */
-        .grid-pattern-dark {
-            background-image: linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px);
-            background-size: 40px 40px;
-        }
-
-        /* Additional hover effects for tool cards */
-        .group:hover .group-hover\:bg-white {
-            background-color: #ffffff;
-        }
-
-        .group:hover .group-hover\:text-black {
-            color: #000000;
-        }
-
-        .group:hover .group-hover\:border-2 {
-            border-width: 2px;
-        }
-
-        /* Rotation utility for the built with box */
-        .rotate-1 {
-            transform: rotate(1deg);
-        }
-
-        /* Ensure links and buttons have proper cursor */
-        a, button {
-            cursor: pointer;
-        }
-
-        /* Custom styles for converters */
+        /* Upload area styles */
         .upload-area {
             min-height: 300px;
             transition: all 0.2s ease;
@@ -161,14 +117,20 @@
             }
         }
 
-        /* Responsive adjustments */
+        /* Social share buttons */
+        .social-share-btn {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .social-share-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
             .bw-border, .bw-border-b {
                 border-width: 1px;
-            }
-            
-            table.bw-table th, table.bw-table td {
-                padding: 0.75rem;
             }
             
             .upload-area {
@@ -180,21 +142,23 @@
 <body class="grid-pattern">
     <!-- Header Section -->
     <header class="bw-border-b" style="padding: 2rem;">
-        <div class="container" style="max-width: 1400px; margin: 0 auto;">
+        <div style="max-width: 1400px; margin: 0 auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
                 <div>
                     <h1 style="font-size: 3rem; font-weight: 700; letter-spacing: -0.02em;">
-                        PDF/IMAGE<br>
-                        <span class="font-mono" style="font-size: 1.5rem;">CONVERTER</span>
+                        PORTABLE-<br>
+                        <span class="font-mono" style="font-size: 1.5rem;">IMAGE</span>
                     </h1>
-                    <p class="font-mono" style="margin-top: 1rem; font-size: 0.875rem;">
-                        v1.0 • LOCAL PROCESSING ONLY
-                    </p>
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1rem;">
+                        <span class="font-mono" style="font-size: 0.875rem;">POWERED BY</span>
+                        <span class="font-mono" style="font-size: 1.25rem; font-weight: 700;">COSMOTOOLS</span>
+                    </div>
                 </div>
                 <div class="font-mono" style="text-align: right;">
                     <div class="bw-border" style="padding: 1rem;">
-                        <div>⚡ 100% OFFLINE</div>
+                        <div>⚡ 100% LOCAL</div>
                         <div style="font-size: 0.75rem; margin-top: 0.5rem;">NO CLOUD STORAGE</div>
+                        <div style="font-size: 0.75rem; margin-top: 0.25rem;">🔒 COMPLETE PRIVACY</div>
                     </div>
                 </div>
             </div>
@@ -243,6 +207,7 @@
                     <div style="font-size: 4rem; margin-bottom: 1rem;">⚡</div>
                     <p class="font-mono">Select a tool above to begin</p>
                     <p style="margin-top: 1rem; opacity: 0.7;">All processing happens locally in your browser</p>
+                    <p style="margin-top: 0.5rem; opacity: 0.5; font-size: 0.875rem;">Your files never leave your device</p>
                 </div>
             </div>
         </div>
@@ -268,18 +233,77 @@
             </div>
         </div>
 
-        <!-- QR Code Section -->
-        <div class="bw-border" style="padding: 2rem;">
-            <div class="font-mono" style="margin-bottom: 1rem;">└ SHARE THIS TOOL ┘</div>
-            <div style="display: grid; grid-template-columns: auto 1fr; gap: 2rem; align-items: center; flex-wrap: wrap;">
-                <div id="qr-container" style="padding: 1rem; border: 2px solid white;"></div>
-                <div>
-                    <p class="font-mono" style="margin-bottom: 1rem;">SCAN TO ACCESS</p>
-                    <p style="opacity: 0.7;">CosmoTools Portable Image Studio</p>
-                    <p class="font-mono" style="font-size: 0.75rem; margin-top: 1rem;">cosmotools.space/image</p>
-                    <button id="download-qr-btn" class="bw-hover font-mono" style="margin-top: 1rem; padding: 0.5rem 1rem; background: transparent; color: white; border: 2px solid white; cursor: pointer;">
-                        DOWNLOAD QR →
+        <!-- Share & Info Section -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+            <!-- Social Sharing -->
+            <div class="bw-border" style="padding: 2rem;">
+                <div class="font-mono" style="margin-bottom: 1.5rem;">└ SHARE THIS TOOL ┘</div>
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div id="qr-container" style="display: inline-block; padding: 1rem; border: 2px solid white;"></div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <button class="social-share-btn" data-platform="whatsapp" style="background: transparent; color: white; border: 2px solid white; padding: 0.75rem; cursor: pointer; font-family: 'JetBrains Mono', monospace;">
+                        📱 WhatsApp
                     </button>
+                    <button class="social-share-btn" data-platform="telegram" style="background: transparent; color: white; border: 2px solid white; padding: 0.75rem; cursor: pointer; font-family: 'JetBrains Mono', monospace;">
+                        ✈️ Telegram
+                    </button>
+                    <button class="social-share-btn" data-platform="linkedin" style="background: transparent; color: white; border: 2px solid white; padding: 0.75rem; cursor: pointer; font-family: 'JetBrains Mono', monospace;">
+                        🔗 LinkedIn
+                    </button>
+                </div>
+                <button id="copy-link-btn" class="bw-hover font-mono" style="margin-top: 1rem; width: 100%; padding: 0.75rem; background: transparent; color: white; border: 2px solid white; cursor: pointer;">
+                    📋 COPY LINK
+                </button>
+            </div>
+
+            <!-- Privacy & Info -->
+            <div class="bw-border" style="padding: 2rem;">
+                <div class="font-mono" style="margin-bottom: 1.5rem;">└ PRIVACY & SECURITY ┘</div>
+                <div style="space-y: 1rem;">
+                    <div style="margin-bottom: 1rem;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🔒</div>
+                        <p class="font-mono" style="font-weight: bold;">100% Local Processing</p>
+                        <p style="font-size: 0.875rem; opacity: 0.7;">All file conversions happen directly in your browser. No data is ever uploaded to any server.</p>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🚫</div>
+                        <p class="font-mono" style="font-weight: bold;">No Cloud Storage</p>
+                        <p style="font-size: 0.875rem; opacity: 0.7;">Your files are never stored in the cloud. Once you close the tab, all data is gone.</p>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">✨</div>
+                        <p class="font-mono" style="font-weight: bold;">Complete Privacy</p>
+                        <p style="font-size: 0.875rem; opacity: 0.7;">No tracking, no analytics, no data collection. Your privacy is fully protected.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Portable-Image -->
+        <div class="bw-border" style="padding: 2rem;">
+            <div class="font-mono" style="margin-bottom: 1.5rem;">└ ABOUT PORTABLE-IMAGE ┘</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+                <div>
+                    <p class="font-mono" style="font-weight: bold; margin-bottom: 0.5rem;">What is Portable-Image?</p>
+                    <p style="font-size: 0.875rem; opacity: 0.7;">A powerful, privacy-focused web tool that converts PDF documents to images and images to PDF documents - all in your browser.</p>
+                </div>
+                <div>
+                    <p class="font-mono" style="font-weight: bold; margin-bottom: 0.5rem;">Key Features</p>
+                    <ul style="font-size: 0.875rem; opacity: 0.7; list-style: none;">
+                        <li>✓ PDF to Image (PNG, JPEG, WebP, BMP)</li>
+                        <li>✓ Image to PDF conversion</li>
+                        <li>✓ Multiple image formats support</li>
+                        <li>✓ Adjustable image quality</li>
+                        <li>✓ Drag & drop interface</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="font-mono" style="font-weight: bold; margin-bottom: 0.5rem;">Powered By</p>
+                    <p style="font-size: 0.875rem; opacity: 0.7;">CosmoTools - Suite of privacy-first web utilities. Built with PDF.js, jsPDF, and modern web technologies.</p>
+                    <div class="bw-border" style="margin-top: 1rem; padding: 0.5rem; text-align: center;">
+                        <span class="font-mono" style="font-size: 0.75rem;">bhuvanesh-m-dev/cosmotools</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -287,13 +311,16 @@
 
     <!-- Footer -->
     <footer class="bw-border" style="margin-top: 2rem; padding: 2rem; text-align: center;">
-        <div class="font-mono" style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+        <div class="font-mono" style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1rem;">
             <span>🔒 100% LOCAL PROCESSING</span>
             <span>⚡ NO UPLOAD REQUIRED</span>
-            <span>📁 bhuvanesh-m-dev/cosmotools</span>
+            <span>📁 NO DATA STORAGE</span>
+            <span>🎯 COMPLETE PRIVACY</span>
         </div>
-        <div style="margin-top: 1rem; font-size: 0.875rem; opacity: 0.7;">
-            Powered by PDF.js & jsPDF • All conversions happen in your browser
+        <div style="font-size: 0.875rem; opacity: 0.7;">
+            <p>Portable-Image v1.0 | Powered by CosmoTools</p>
+            <p style="margin-top: 0.5rem;">All conversions happen locally in your browser - Your files never leave your device</p>
+            <p style="margin-top: 0.5rem; font-size: 0.75rem;">© 2024 CosmoTools. Open Source. Privacy First.</p>
         </div>
     </footer>
 
