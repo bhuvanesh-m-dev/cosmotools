@@ -24,6 +24,7 @@ const SHARE_MESSAGE = `Portable-Image - Convert PDF to Images & Images to PDF
 ✨ Complete Privacy Protection
 📄 PDF → 🖼️ Images
 🖼️ Images → 📄 PDF
+📦 Download as ZIP Archive
 
 Your files never leave your device. All conversions happen in your browser.
 
@@ -90,6 +91,43 @@ async function copyLink() {
     }
 }
 
+// ZIP Download Function
+async function downloadImagesAsZip(images, format, quality) {
+    const zip = new JSZip();
+    const folder = zip.folder("portable-image-converted");
+    
+    showNotification('Creating ZIP archive...');
+    
+    for (let i = 0; i < images.length; i++) {
+        // Convert image to blob with selected format
+        const img = new Image();
+        img.src = images[i];
+        
+        await new Promise((resolve) => {
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                
+                let mimeType = `image/${format}`;
+                if (format === 'jpeg') mimeType = 'image/jpeg';
+                
+                canvas.toBlob((blob) => {
+                    const extension = format === 'jpeg' ? 'jpg' : format;
+                    folder.file(`page-${i + 1}.${extension}`, blob);
+                    resolve();
+                }, mimeType, quality);
+            };
+        });
+    }
+    
+    const content = await zip.generateAsync({ type: "blob" });
+    saveAs(content, `portable-image-${Date.now()}.zip`);
+    showNotification(`ZIP archive created with ${images.length} images!`);
+}
+
 // PDF to Image Tool
 pdfToImageTool.addEventListener('click', () => {
     activeTool = 'pdf-to-image';
@@ -108,9 +146,18 @@ pdfToImageTool.addEventListener('click', () => {
             <button id="convert-pdf-btn" class="bw-hover font-mono" style="padding: 0.75rem 1.5rem; background: transparent; color: white; border: 2px solid white; cursor: pointer; margin-right: 1rem;">
                 CONVERT ALL PAGES →
             </button>
+            <button id="download-zip-btn" class="bw-hover font-mono" style="padding: 0.75rem 1.5rem; background: transparent; color: white; border: 2px solid white; cursor: pointer; margin-right: 1rem;">
+                📦 DOWNLOAD AS ZIP →
+            </button>
             <button id="clear-pdf-btn" class="bw-hover font-mono" style="padding: 0.75rem 1.5rem; background: transparent; color: white; border: 2px solid white; cursor: pointer;">
                 CLEAR →
             </button>
+        </div>
+        <div id="progress-container" style="display: none; margin-top: 1rem;">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <p class="font-mono" style="margin-top: 0.5rem; font-size: 0.75rem;" id="progress-text">Converting...</p>
         </div>
     `;
     
@@ -118,6 +165,9 @@ pdfToImageTool.addEventListener('click', () => {
     const pdfUploadArea = document.getElementById('pdf-upload-area');
     const pdfPreview = document.getElementById('pdf-preview');
     const pdfControls = document.getElementById('pdf-controls');
+    const progressContainer = document.getElementById('progress-container');
+    const progressFill = document.getElementById('progress-fill');
+    const progressText = document.getElementById('progress-text');
     
     pdfUploadArea.addEventListener('click', () => pdfUpload.click());
     
@@ -187,12 +237,18 @@ pdfToImageTool.addEventListener('click', () => {
         }
     });
     
+    // Convert PDF button
     document.addEventListener('click', async (e) => {
         if (e.target.id === 'convert-pdf-btn' && currentPDF) {
+            progressContainer.style.display = 'block';
             showNotification(`Converting ${currentPDF.numPages} pages locally...`);
             const images = [];
             
             for (let i = 1; i <= currentPDF.numPages; i++) {
+                const progress = (i / currentPDF.numPages) * 100;
+                progressFill.style.width = `${progress}%`;
+                progressText.textContent = `Converting page ${i} of ${currentPDF.numPages}...`;
+                
                 const page = await currentPDF.getPage(i);
                 const viewport = page.getViewport({ scale: 2 });
                 const canvas = document.createElement('canvas');
@@ -208,6 +264,13 @@ pdfToImageTool.addEventListener('click', () => {
             currentImages = images;
             currentImageData = images[0];
             
+            progressFill.style.width = '100%';
+            progressText.textContent = 'Conversion complete!';
+            setTimeout(() => {
+                progressContainer.style.display = 'none';
+                progressFill.style.width = '0%';
+            }, 2000);
+            
             pdfPreview.innerHTML += `
                 <div class="bw-border" style="margin-top: 1rem; padding: 1rem;">
                     <p class="font-mono">✓ Converted ${images.length} Pages:</p>
@@ -219,11 +282,18 @@ pdfToImageTool.addEventListener('click', () => {
                             </div>
                         `).join('')}
                     </div>
-                    <p class="font-mono" style="margin-top: 1rem; font-size: 0.75rem;">💡 Tip: Use the Download Image tool to save individual images</p>
+                    <p class="font-mono" style="margin-top: 1rem; font-size: 0.75rem;">💡 Tip: Use "Download as ZIP" to save all pages at once</p>
                 </div>
             `;
             
-            showNotification(`Converted ${currentPDF.numPages} pages! Use Download Tool to save images.`);
+            showNotification(`Converted ${currentPDF.numPages} pages!`);
+        }
+        
+        // Download ZIP button
+        if (e.target.id === 'download-zip-btn' && currentImages && currentImages.length > 0) {
+            const format = imageFormat.value;
+            const quality = parseFloat(imageQuality.value);
+            await downloadImagesAsZip(currentImages, format, quality);
         }
         
         if (e.target.id === 'clear-pdf-btn') {
@@ -254,6 +324,9 @@ imageToPdfTool.addEventListener('click', () => {
         <div id="image-to-pdf-controls" style="margin-top: 1rem; display: none;">
             <button id="create-pdf-btn" class="bw-hover font-mono" style="padding: 0.75rem 1.5rem; background: transparent; color: white; border: 2px solid white; cursor: pointer; margin-right: 1rem;">
                 CREATE PDF →
+            </button>
+            <button id="download-images-zip-btn" class="bw-hover font-mono" style="padding: 0.75rem 1.5rem; background: transparent; color: white; border: 2px solid white; cursor: pointer; margin-right: 1rem;">
+                📦 DOWNLOAD IMAGES AS ZIP →
             </button>
             <button id="clear-images-btn" class="bw-hover font-mono" style="padding: 0.75rem 1.5rem; background: transparent; color: white; border: 2px solid white; cursor: pointer;">
                 CLEAR ALL →
@@ -301,7 +374,7 @@ imageToPdfTool.addEventListener('click', () => {
             </div>
         `;
         imageToPdfControls.style.display = 'block';
-        showNotification(`${images.length} images ready for PDF conversion!`);
+        showNotification(`${images.length} images ready!`);
     });
     
     document.addEventListener('click', async (e) => {
@@ -335,12 +408,18 @@ imageToPdfTool.addEventListener('click', () => {
                     }
                     
                     pdf.save('portable-image-converted.pdf');
-                    showNotification('PDF created and downloaded! Your files never left your device.');
+                    showNotification('PDF created and downloaded!');
                 };
             } catch (error) {
                 console.error(error);
                 showNotification('Failed to create PDF', true);
             }
+        }
+        
+        if (e.target.id === 'download-images-zip-btn' && currentImages && currentImages.length > 0) {
+            const format = imageFormat.value;
+            const quality = parseFloat(imageQuality.value);
+            await downloadImagesAsZip(currentImages, format, quality);
         }
         
         if (e.target.id === 'clear-images-btn') {
@@ -379,6 +458,9 @@ downloadTool.addEventListener('click', () => {
             ${currentImages && currentImages.length > 1 ? `
                 <div class="bw-border" style="margin-top: 2rem; padding: 1rem;">
                     <p class="font-mono">All Images (${currentImages.length} total)</p>
+                    <button id="download-all-zip-btn" class="bw-hover font-mono" style="margin: 1rem 0; padding: 0.5rem 1rem; background: transparent; color: white; border: 2px solid white; cursor: pointer;">
+                        📦 DOWNLOAD ALL AS ZIP →
+                    </button>
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 1rem; margin-top: 1rem; max-height: 300px; overflow-y: auto;">
                         ${currentImages.map((img, idx) => `
                             <div style="cursor: pointer;" onclick="window.selectImage(${idx})">
@@ -407,6 +489,9 @@ downloadTool.addEventListener('click', () => {
                     ${currentImages.length > 1 ? `
                         <div class="bw-border" style="margin-top: 2rem; padding: 1rem;">
                             <p class="font-mono">All Images (${currentImages.length} total)</p>
+                            <button id="download-all-zip-btn" class="bw-hover font-mono" style="margin: 1rem 0; padding: 0.5rem 1rem; background: transparent; color: white; border: 2px solid white; cursor: pointer;">
+                                📦 DOWNLOAD ALL AS ZIP →
+                            </button>
                             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 1rem; margin-top: 1rem; max-height: 300px; overflow-y: auto;">
                                 ${currentImages.map((img, idx) => `
                                     <div style="cursor: pointer;" onclick="window.selectImage(${idx})">
@@ -423,7 +508,7 @@ downloadTool.addEventListener('click', () => {
         }
     };
     
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', async (e) => {
         if (e.target.id === 'download-current-btn' && currentImageData) {
             const format = imageFormat.value;
             const quality = parseFloat(imageQuality.value);
@@ -450,9 +535,15 @@ downloadTool.addEventListener('click', () => {
                     a.click();
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
-                    showNotification(`Image saved as ${format.toUpperCase()} - 100% local download`);
+                    showNotification(`Image saved as ${format.toUpperCase()}`);
                 }, mimeType, quality);
             };
+        }
+        
+        if (e.target.id === 'download-all-zip-btn' && currentImages && currentImages.length > 0) {
+            const format = imageFormat.value;
+            const quality = parseFloat(imageQuality.value);
+            await downloadImagesAsZip(currentImages, format, quality);
         }
     });
 });
@@ -495,7 +586,7 @@ document.getElementById('download-qr-btn')?.addEventListener('click', () => {
         link.download = 'portable-image-qr.png';
         link.href = qrCanvas.toDataURL();
         link.click();
-        showNotification('QR Code downloaded! Share with others.');
+        showNotification('QR Code downloaded!');
     } else {
         showNotification('QR Code not ready', true);
     }
